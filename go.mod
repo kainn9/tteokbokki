@@ -2,10 +2,7 @@ module github.com/kainn9/tteokbokki
 
 go 1.20
 
-require (
-	github.com/hajimehoshi/ebiten/v2 v2.5.9
-	github.com/yohamta/donburi v1.3.8
-)
+require github.com/hajimehoshi/ebiten/v2 v2.5.9
 
 require (
 	github.com/ebitengine/purego v0.4.0 // indirect

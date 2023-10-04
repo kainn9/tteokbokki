@@ -83,6 +83,15 @@ func (s *Solver) SolvePenConstraint(pc *componentsPhysicsTypes.PenConstraint) {
 	velSlice := getVelocitiesSlice(*pc.A, *pc.B)
 
 	invMassMat := getInverseMassMatrix(*pc.A, *pc.B)
+	if pc.A.Unstoppable {
+		(*(*invMassMat.Rows)[0])[0] = 0.0
+		(*(*invMassMat.Rows)[1])[1] = 0.0
+
+	}
+	if pc.B.Unstoppable {
+		(*(*invMassMat.Rows)[3])[3] = 0.0
+		(*(*invMassMat.Rows)[4])[4] = 0.0
+	}
 
 	lhs, _ := pc.Jacobian.Multiply(invMassMat)
 	lhs, _ = lhs.Multiply(*pc.JacobianTranspose)
@@ -106,6 +115,18 @@ func (s *Solver) SolvePenConstraint(pc *componentsPhysicsTypes.PenConstraint) {
 	lambda = sliceHelper.SubtractSlices(pc.CachedLambda, oldLambda)
 
 	impulses, _ := pc.JacobianTranspose.MultiplyBySlice(lambda)
+
+	if pc.A.Unstoppable {
+		impulses[0] = 0.0
+		impulses[1] = 0.0
+		impulses[2] = 0.0
+	}
+
+	if pc.B.Unstoppable {
+		impulses[3] = 0.0
+		impulses[4] = 0.0
+		impulses[5] = 0.0
+	}
 
 	transformer.ApplyImpulseLinear(pc.A, vec.Vec2{X: impulses[0], Y: impulses[1]})
 	transformer.ApplyImpulseAngular(pc.A, impulses[2])

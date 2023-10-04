@@ -10,14 +10,14 @@ type Solver struct{}
 func getInverseMassMatrix(a, b componentsPhysicsTypes.RigidBody) matrix.MatRC {
 	matrix := matrix.NewMatRC(6, 6)
 
+	// a
 	(*(*matrix.Rows)[0])[0] = a.InverseMass
 	(*(*matrix.Rows)[1])[1] = a.InverseMass
-
 	(*(*matrix.Rows)[2])[2] = a.InverseAngularMass
 
+	// b
 	(*(*matrix.Rows)[3])[3] = b.InverseMass
 	(*(*matrix.Rows)[4])[4] = b.InverseMass
-
 	(*(*matrix.Rows)[5])[5] = b.InverseAngularMass
 
 	return matrix
