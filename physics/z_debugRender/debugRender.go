@@ -11,11 +11,12 @@ import (
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/vector"
-	componentsPhysicsTypes "github.com/kainn9/tteokbokki/components/physics"
+
+	"github.com/kainn9/tteokbokki/components"
 	"github.com/kainn9/tteokbokki/math/vec"
 )
 
-func DrawCircleBody(screen *ebiten.Image, rb componentsPhysicsTypes.RigidBody, color color.RGBA) {
+func DrawCircleBody(screen *ebiten.Image, rb components.RigidBodyComponent, color color.RGBA) {
 
 	vector.StrokeCircle(screen, float32(rb.Pos.X), float32(rb.Pos.Y), float32(rb.Circle.Radius), 1.0, color, false)
 
@@ -29,7 +30,7 @@ func DrawCircleBody(screen *ebiten.Image, rb componentsPhysicsTypes.RigidBody, c
 	vector.StrokeLine(screen, float32(rb.Pos.X), float32(rb.Pos.Y), float32(endpoint.X), float32(endpoint.Y), 1.0, color, false)
 }
 
-func DrawPolygonBody(screen *ebiten.Image, rb componentsPhysicsTypes.RigidBody, color color.RGBA) {
+func DrawPolygonBody(screen *ebiten.Image, rb components.RigidBodyComponent, color color.RGBA) {
 
 	length := len(rb.Polygon.WorldVertices)
 

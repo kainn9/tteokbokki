@@ -1,7 +1,7 @@
 package collision
 
 import (
-	componentsPhysicsTypes "github.com/kainn9/tteokbokki/components/physics"
+	"github.com/kainn9/tteokbokki/components"
 	"github.com/kainn9/tteokbokki/math/vec"
 	"github.com/kainn9/tteokbokki/physics/transform"
 )
@@ -11,7 +11,7 @@ type Resolver struct{}
 var transformer = transform.Transformer{}
 
 // Updates position and applies velocity to resolve collisions based on mass/angular-mass.
-func (r Resolver) Impulse(c componentsPhysicsTypes.Contact) {
+func (r Resolver) Impulse(c components.ContactComponent) {
 
 	a := c.A
 	b := c.B
@@ -39,7 +39,7 @@ func (r Resolver) Impulse(c componentsPhysicsTypes.Contact) {
 
 // Updates the position to resolve collisions based on mass.
 // Note: Project the verb, not the noun — as in projection.
-func (Resolver) project(c componentsPhysicsTypes.Contact) {
+func (Resolver) project(c components.ContactComponent) {
 	a := c.A
 	b := c.B
 
@@ -65,7 +65,7 @@ func (Resolver) project(c componentsPhysicsTypes.Contact) {
 
 }
 
-func getImpulses(c componentsPhysicsTypes.Contact) (vec.Vec2, vec.Vec2, vec.Vec2) {
+func getImpulses(c components.ContactComponent) (vec.Vec2, vec.Vec2, vec.Vec2) {
 	a := c.A
 	b := c.B
 

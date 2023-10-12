@@ -1,7 +1,7 @@
 package constraint
 
 import (
-	componentsPhysicsTypes "github.com/kainn9/tteokbokki/components/physics"
+	"github.com/kainn9/tteokbokki/components"
 	"github.com/kainn9/tteokbokki/math/vec"
 	"github.com/kainn9/tteokbokki/physics/transform"
 	"github.com/kainn9/tteokbokki/sliceHelper"
@@ -9,7 +9,7 @@ import (
 
 var transformer = transform.Transformer{}
 
-func (s *Solver) PreSolveJointConstraintLinear(jc *componentsPhysicsTypes.JointConstraint, dt float64) {
+func (s *Solver) PreSolveJointConstraintLinear(jc *components.JointConstraintComponent, dt float64) {
 
 	pa := jc.A.LocalToWorldSpace(jc.ALocal)
 	pb := jc.B.Pos
@@ -38,7 +38,7 @@ func (s *Solver) PreSolveJointConstraintLinear(jc *componentsPhysicsTypes.JointC
 
 }
 
-func (s *Solver) SolveJointConstraintLinear(jc *componentsPhysicsTypes.JointConstraint) {
+func (s *Solver) SolveJointConstraintLinear(jc *components.JointConstraintComponent) {
 
 	invMassMat := getInverseMassMatrix(*jc.A, *jc.B)
 	velSlice := getVelocitiesSlice(*jc.A, *jc.B)
@@ -61,7 +61,7 @@ func (s *Solver) SolveJointConstraintLinear(jc *componentsPhysicsTypes.JointCons
 
 }
 
-func (s *Solver) PreSolveJointConstraint(jc *componentsPhysicsTypes.JointConstraint, dt float64) {
+func (s *Solver) PreSolveJointConstraint(jc *components.JointConstraintComponent, dt float64) {
 
 	a := jc.A
 	b := jc.B
@@ -108,7 +108,7 @@ func (s *Solver) PreSolveJointConstraint(jc *componentsPhysicsTypes.JointConstra
 	jc.Bias = (beta / dt) * positionalError
 }
 
-func (s *Solver) SolveJointConstraint(jc *componentsPhysicsTypes.JointConstraint) {
+func (s *Solver) SolveJointConstraint(jc *components.JointConstraintComponent) {
 	a := jc.A
 	b := jc.B
 

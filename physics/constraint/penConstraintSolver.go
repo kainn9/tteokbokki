@@ -3,13 +3,13 @@ package constraint
 import (
 	"math"
 
-	componentsPhysicsTypes "github.com/kainn9/tteokbokki/components/physics"
+	"github.com/kainn9/tteokbokki/components"
 	mathHelper "github.com/kainn9/tteokbokki/math"
 	"github.com/kainn9/tteokbokki/math/vec"
 	"github.com/kainn9/tteokbokki/sliceHelper"
 )
 
-func (s *Solver) PreSolvePenConstraint(pc *componentsPhysicsTypes.PenConstraint, dt float64) {
+func (s *Solver) PreSolvePenConstraint(pc *components.PenConstraintComponent, dt float64) {
 	// get collision points in world space
 	pa := pc.A.LocalToWorldSpace(pc.ACollisionPointLocal)
 	pb := pc.B.LocalToWorldSpace(pc.BCollisionPointLocal)
@@ -78,7 +78,7 @@ func (s *Solver) PreSolvePenConstraint(pc *componentsPhysicsTypes.PenConstraint,
 
 }
 
-func (s *Solver) SolvePenConstraint(pc *componentsPhysicsTypes.PenConstraint) {
+func (s *Solver) SolvePenConstraint(pc *components.PenConstraintComponent) {
 
 	velSlice := getVelocitiesSlice(*pc.A, *pc.B)
 

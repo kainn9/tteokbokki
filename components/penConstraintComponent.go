@@ -1,12 +1,12 @@
-package componentsPhysics
+package components
 
 import (
 	"github.com/kainn9/tteokbokki/math/matrix"
 	"github.com/kainn9/tteokbokki/math/vec"
 )
 
-type PenConstraint struct {
-	A, B                                       *RigidBody
+type PenConstraintComponent struct {
+	A, B                                       *RigidBodyComponent
 	ACollisionPointLocal, BCollisionPointLocal vec.Vec2
 	CollisionNormal                            vec.Vec2
 	Jacobian, JacobianTranspose                *matrix.MatRC
@@ -15,14 +15,14 @@ type PenConstraint struct {
 	Bias                                       float64
 }
 
-func (PhysicsComponentsStruct) NewPenConstraint(c Contact) *PenConstraint {
+func NewPenConstraint(c ContactComponent) *PenConstraintComponent {
 	j := matrix.NewMatRC(2, 6)
 
 	aPoint := c.A.WorldToLocalSpace(c.Start)
 	bPoint := c.B.WorldToLocalSpace(c.End)
 	collisionNormalLocal := c.A.WorldToLocalSpace(c.Normal)
 
-	return &PenConstraint{
+	return &PenConstraintComponent{
 		A:                    c.A,
 		B:                    c.B,
 		ACollisionPointLocal: aPoint,

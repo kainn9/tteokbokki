@@ -1,13 +1,13 @@
 package constraint
 
 import (
-	componentsPhysicsTypes "github.com/kainn9/tteokbokki/components/physics"
+	"github.com/kainn9/tteokbokki/components"
 	"github.com/kainn9/tteokbokki/math/matrix"
 )
 
 type Solver struct{}
 
-func getInverseMassMatrix(a, b componentsPhysicsTypes.RigidBody) matrix.MatRC {
+func getInverseMassMatrix(a, b components.RigidBodyComponent) matrix.MatRC {
 	matrix := matrix.NewMatRC(6, 6)
 
 	// a
@@ -24,7 +24,7 @@ func getInverseMassMatrix(a, b componentsPhysicsTypes.RigidBody) matrix.MatRC {
 
 }
 
-func getVelocitiesSlice(a, b componentsPhysicsTypes.RigidBody) []float64 {
+func getVelocitiesSlice(a, b components.RigidBodyComponent) []float64 {
 	velocities := make([]float64, 6)
 
 	velocities[0] = a.Vel.X
