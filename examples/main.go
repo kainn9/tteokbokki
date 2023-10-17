@@ -1,11 +1,10 @@
 package main
 
 import (
-	"github/kainn9/tteobokkiExamples/globals"
-	"github/kainn9/tteobokkiExamples/scenes"
-
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/kainn9/coldBrew"
+	"github.com/kainn9/tteokbokki/examples/globals"
+	"github.com/kainn9/tteokbokki/examples/scenes"
 )
 
 type game struct {
@@ -24,7 +23,7 @@ func main() {
 
 func NewGame() *game {
 
-	manager := coldBrew.NewManager(SCENE_CACHE_LIMIT)
+	manager := coldBrew.NewManager(5, ebiten.NewImage(globals.GAME_WIDTH, globals.GAME_HEIGHT))
 	firstScene := scenes.SimpleRigidBodiesScene
 	manager.LoadScene(firstScene)
 
@@ -44,6 +43,7 @@ func NewGame() *game {
 func (g *game) Update() error {
 
 	deltaTime := (0.017)
+	g.manager.GetActiveScene().Load()
 	g.manager.GetActiveScene().Sync()
 	g.manager.GetActiveScene().Sim(deltaTime)
 

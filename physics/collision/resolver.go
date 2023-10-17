@@ -11,10 +11,8 @@ type Resolver struct{}
 var transformer = transform.Transformer{}
 
 // Updates position and applies velocity to resolve collisions based on mass/angular-mass.
-func (r Resolver) Impulse(c components.ContactComponent) {
-
-	a := c.A
-	b := c.B
+// Args a & b should match the order that was used in Check().
+func (r Resolver) Impulse(c components.Contact, a, b *components.RigidBody) {
 
 	bothBodiesStatic :=
 		(a.IsStatic() || a.Unstoppable) && (b.IsStatic() || b.Unstoppable)
@@ -23,9 +21,9 @@ func (r Resolver) Impulse(c components.ContactComponent) {
 		return
 	}
 
-	r.project(c)
+	r.project(c, a, b)
 
-	impulse, angularImpulseFactorA, angularImpulseFactorB := getImpulses(c)
+	impulse, angularImpulseFactorA, angularImpulseFactorB := getImpulses(c, a, b)
 
 	if !a.Unstoppable {
 		transformer.ApplyImpulse(a, impulse, angularImpulseFactorA)
@@ -39,9 +37,7 @@ func (r Resolver) Impulse(c components.ContactComponent) {
 
 // Updates the position to resolve collisions based on mass.
 // Note: Project the verb, not the noun — as in projection.
-func (Resolver) project(c components.ContactComponent) {
-	a := c.A
-	b := c.B
+func (Resolver) project(c components.Contact, a, b *components.RigidBody) {
 
 	inverseMassA := a.InverseMass
 	if a.Unstoppable {
@@ -65,9 +61,7 @@ func (Resolver) project(c components.ContactComponent) {
 
 }
 
-func getImpulses(c components.ContactComponent) (vec.Vec2, vec.Vec2, vec.Vec2) {
-	a := c.A
-	b := c.B
+func getImpulses(c components.Contact, a, b *components.RigidBody) (vec.Vec2, vec.Vec2, vec.Vec2) {
 
 	inverseMassA := a.InverseMass
 	if a.Unstoppable {

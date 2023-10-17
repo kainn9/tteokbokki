@@ -1,10 +1,9 @@
 package rigidBodiesSimSystems
 
 import (
-	"github/kainn9/tteobokkiExamples/globals"
-
 	"github.com/kainn9/coldBrew"
 
+	"github.com/kainn9/tteokbokki/examples/globals"
 	"github.com/kainn9/tteokbokki/physics"
 	"github.com/yohamta/donburi"
 	"github.com/yohamta/donburi/filter"

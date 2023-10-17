@@ -3,12 +3,11 @@ package rigidBodiesSimSystems
 import (
 	"math/rand"
 
-	"github/kainn9/tteobokkiExamples/factory"
-	"github/kainn9/tteobokkiExamples/globals"
-
 	"github.com/kainn9/coldBrew"
 
 	"github.com/kainn9/tteokbokki/components"
+	"github.com/kainn9/tteokbokki/examples/factory"
+	"github.com/kainn9/tteokbokki/examples/globals"
 	"github.com/kainn9/tteokbokki/math/vec"
 	"github.com/kainn9/tteokbokki/sliceHelper"
 	"github.com/yohamta/donburi"
@@ -40,7 +39,7 @@ func (sys Spawn) Run(dt float64, _ *donburi.Entry) {
 
 	entry := sys.SceneAdmin.AddEntity(globals.RigidBodyComponent)
 
-	var data components.RigidBodyComponent = components.RigidBodyComponent{}
+	var data components.RigidBody = components.RigidBody{}
 
 	switch randomNumber {
 

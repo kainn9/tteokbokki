@@ -9,17 +9,18 @@ import (
 	"github.com/kainn9/tteokbokki/sliceHelper"
 )
 
-func (s *Solver) PreSolvePenConstraint(pc *components.PenConstraintComponent, dt float64) {
-	// get collision points in world space
-	pa := pc.A.LocalToWorldSpace(pc.ACollisionPointLocal)
-	pb := pc.B.LocalToWorldSpace(pc.BCollisionPointLocal)
+// Args a & b should match the order that was used in Check().
+func (s *Solver) PreSolvePenConstraint(pc *components.PenConstraint, a, b *components.RigidBody, dt float64) {
 
-	ra := pa.Sub(pc.A.Pos)
-	rb := pb.Sub(pc.B.Pos)
+	// Get collision points in world space.
+	pa := a.LocalToWorldSpace(pc.ACollisionPointLocal)
+	pb := b.LocalToWorldSpace(pc.BCollisionPointLocal)
 
-	normal := pc.A.LocalToWorldSpace(pc.CollisionNormal)
+	ra := pa.Sub(a.Pos)
+	rb := pb.Sub(b.Pos)
+
+	normal := a.LocalToWorldSpace(pc.CollisionNormal)
 	inverseNormal := normal.Scale(-1)
-	// populate jacobian row 1
 
 	(*(*pc.Jacobian.Rows)[0])[0] = inverseNormal.X
 	(*(*pc.Jacobian.Rows)[0])[1] = inverseNormal.Y
@@ -31,9 +32,7 @@ func (s *Solver) PreSolvePenConstraint(pc *components.PenConstraintComponent, dt
 
 	(*(*pc.Jacobian.Rows)[0])[5] = rb.CrossProduct(normal)
 
-	// populate jacobian row 2 for friction
-	// on the tangent normal
-	pc.Friction = (pc.A.Friction + pc.B.Friction) / 2.0
+	pc.Friction = (a.Friction + b.Friction) / 2.0
 
 	if pc.Friction > 0.0 {
 		tanNormal := normal.Perpendicular()
@@ -46,30 +45,30 @@ func (s *Solver) PreSolvePenConstraint(pc *components.PenConstraintComponent, dt
 		(*(*pc.Jacobian.Rows)[1])[5] = rb.CrossProduct(tanNormal)
 	}
 
-	// warm start
+	// Warm start.
 	t := pc.Jacobian.Transpose()
 	pc.JacobianTranspose = &t
 
 	impulses, _ := pc.JacobianTranspose.MultiplyBySlice(pc.CachedLambda)
 
-	transformer.ApplyImpulseLinear(pc.A, vec.Vec2{X: impulses[0], Y: impulses[1]})
-	transformer.ApplyImpulseAngular(pc.A, impulses[2])
-	transformer.ApplyImpulseLinear(pc.B, vec.Vec2{X: impulses[3], Y: impulses[4]})
-	transformer.ApplyImpulseAngular(pc.B, impulses[5])
+	transformer.ApplyImpulseLinear(a, vec.Vec2{X: impulses[0], Y: impulses[1]})
+	transformer.ApplyImpulseAngular(a, impulses[2])
+	transformer.ApplyImpulseLinear(b, vec.Vec2{X: impulses[3], Y: impulses[4]})
+	transformer.ApplyImpulseAngular(b, impulses[5])
 
-	// setting bias
-	va := pc.A.Vel.Add(vec.Vec2{
-		X: -pc.A.AngularVel * ra.Y,
-		Y: pc.A.AngularVel * ra.X,
+	// Setting bias.
+	va := a.Vel.Add(vec.Vec2{
+		X: -a.AngularVel * ra.Y,
+		Y: a.AngularVel * ra.X,
 	})
 
-	vb := pc.B.Vel.Add(vec.Vec2{
-		X: -pc.B.AngularVel * rb.Y,
-		Y: pc.B.AngularVel * rb.X,
+	vb := b.Vel.Add(vec.Vec2{
+		X: -b.AngularVel * rb.Y,
+		Y: b.AngularVel * rb.X,
 	})
 
 	relVelDotNormal := va.Sub(vb).ScalarProduct(normal)
-	e := (pc.A.Elasticity + pc.B.Elasticity) / 2.0
+	e := (a.Elasticity + b.Elasticity) / 2.0
 
 	beta := 0.2
 	positionalError := pb.Sub(pa).ScalarProduct(inverseNormal)
@@ -78,17 +77,19 @@ func (s *Solver) PreSolvePenConstraint(pc *components.PenConstraintComponent, dt
 
 }
 
-func (s *Solver) SolvePenConstraint(pc *components.PenConstraintComponent) {
+// SolvePenConstraint solves the penetration constraint.
+// Args a & b should match the order that was used in Check().
+func (s *Solver) SolvePenConstraint(pc *components.PenConstraint, a, b *components.RigidBody) {
 
-	velSlice := getVelocitiesSlice(*pc.A, *pc.B)
+	velSlice := getVelocitiesSlice(*a, *b)
 
-	invMassMat := getInverseMassMatrix(*pc.A, *pc.B)
-	if pc.A.Unstoppable {
+	invMassMat := getInverseMassMatrix(*a, *b)
+	if a.Unstoppable {
 		(*(*invMassMat.Rows)[0])[0] = 0.0
 		(*(*invMassMat.Rows)[1])[1] = 0.0
 
 	}
-	if pc.B.Unstoppable {
+	if b.Unstoppable {
 		(*(*invMassMat.Rows)[3])[3] = 0.0
 		(*(*invMassMat.Rows)[4])[4] = 0.0
 	}
@@ -102,7 +103,7 @@ func (s *Solver) SolvePenConstraint(pc *components.PenConstraintComponent) {
 
 	lambda := lhs.SolveGaussSeidel(rhs)
 
-	// accumulate impulses and clamp
+	// Accumulate impulses and clamp.
 	oldLambda := pc.CachedLambda
 	pc.CachedLambda = sliceHelper.AddSlices(pc.CachedLambda, lambda)
 	pc.CachedLambda[0] = math.Max(0.0, pc.CachedLambda[0])
@@ -116,22 +117,21 @@ func (s *Solver) SolvePenConstraint(pc *components.PenConstraintComponent) {
 
 	impulses, _ := pc.JacobianTranspose.MultiplyBySlice(lambda)
 
-	if pc.A.Unstoppable {
+	if a.Unstoppable {
 		impulses[0] = 0.0
 		impulses[1] = 0.0
 		impulses[2] = 0.0
 	}
 
-	if pc.B.Unstoppable {
+	if b.Unstoppable {
 		impulses[3] = 0.0
 		impulses[4] = 0.0
 		impulses[5] = 0.0
 	}
 
-	transformer.ApplyImpulseLinear(pc.A, vec.Vec2{X: impulses[0], Y: impulses[1]})
-	transformer.ApplyImpulseAngular(pc.A, impulses[2])
+	transformer.ApplyImpulseLinear(a, vec.Vec2{X: impulses[0], Y: impulses[1]})
+	transformer.ApplyImpulseAngular(a, impulses[2])
 
-	transformer.ApplyImpulseLinear(pc.B, vec.Vec2{X: impulses[3], Y: impulses[4]})
-	transformer.ApplyImpulseAngular(pc.B, impulses[5])
-
+	transformer.ApplyImpulseLinear(b, vec.Vec2{X: impulses[3], Y: impulses[4]})
+	transformer.ApplyImpulseAngular(b, impulses[5])
 }

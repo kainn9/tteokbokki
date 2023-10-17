@@ -1,6 +1,6 @@
 package simSystems
 
-import rigidBodiesSimSystems "github/kainn9/tteobokkiExamples/systems/simSystems/rigidBodies"
+import rigidBodiesSimSystems "github.com/kainn9/tteokbokki/examples/systems/simSystems/rigidBodies"
 
 type SimStruct struct {
 	RigidBodies rigidBodiesSimSystems.RigidBodiesStruct

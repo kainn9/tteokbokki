@@ -11,8 +11,8 @@ const (
 )
 
 var (
-	RigidBodyComponent  = donburi.NewComponentType[components.RigidBodyComponent]()
-	RigidBodyComponents = donburi.NewComponentType[[]*components.RigidBodyComponent]()
-	JointConstraint     = donburi.NewComponentType[components.JointConstraintComponent]()
+	RigidBodyComponent  = donburi.NewComponentType[components.RigidBody]()
+	RigidBodyComponents = donburi.NewComponentType[[]*components.RigidBody]()
+	JointConstraint     = donburi.NewComponentType[components.JointConstraint]()
 	BoundsFriction      = 0.5
 )

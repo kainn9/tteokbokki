@@ -1,9 +1,9 @@
 package systems
 
 import (
-	"github/kainn9/tteobokkiExamples/systems/clientSystems"
-	"github/kainn9/tteobokkiExamples/systems/renderSystems"
-	"github/kainn9/tteobokkiExamples/systems/simSystems"
+	"github.com/kainn9/tteokbokki/examples/systems/clientSystems"
+	"github.com/kainn9/tteokbokki/examples/systems/renderSystems"
+	"github.com/kainn9/tteokbokki/examples/systems/simSystems"
 )
 
 var ClientSystems = clientSystems.ClientStruct{}

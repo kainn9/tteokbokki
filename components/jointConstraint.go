@@ -7,18 +7,18 @@ import (
 
 // A joint constraint between two rigid bodies.
 // Can be used with a jointConstraintSolver to handle joint constraints.
-type JointConstraintComponent struct {
-	A, B                        *RigidBodyComponent
+type JointConstraint struct {
+	A, B                        *RigidBody
 	ALocal, BLocal              vec.Vec2
 	Jacobian, JacobianTranspose *matrix.MatRC
 	CachedLambda                []float64
 	Bias                        float64
 }
 
-func NewJointConstraint(a, b *RigidBodyComponent) *JointConstraintComponent {
+func NewJointConstraint(a, b *RigidBody) *JointConstraint {
 	j := matrix.NewMatRC(1, 6)
 
-	return &JointConstraintComponent{
+	return &JointConstraint{
 		A:            a,
 		B:            b,
 		ALocal:       a.WorldToLocalSpace(a.Pos),

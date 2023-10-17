@@ -1,16 +1,15 @@
 package factory
 
 import (
-	"github/kainn9/tteobokkiExamples/globals"
-
 	"github.com/kainn9/tteokbokki/components"
+	"github.com/kainn9/tteokbokki/examples/globals"
 
 	"github.com/kainn9/tteokbokki/math/vec"
 )
 
 var boxFriction = 0.050
 
-func BoundsBoxComponent(x, y, w, h, rotation float64) components.RigidBodyComponent {
+func BoundsBoxComponent(x, y, w, h, rotation float64) components.RigidBody {
 
 	body := components.NewRigidBodyBox(x, y, w, h, 0, true)
 	body.Friction = globals.BoundsFriction
@@ -22,7 +21,7 @@ func BoundsBoxComponent(x, y, w, h, rotation float64) components.RigidBodyCompon
 
 }
 
-func BoundsCircleComponent(x, y, radius float64) components.RigidBodyComponent {
+func BoundsCircleComponent(x, y, radius float64) components.RigidBody {
 
 	body := components.NewRigidBodyCircle(x, y, radius, 0, true)
 	body.Friction = globals.BoundsFriction
@@ -32,7 +31,7 @@ func BoundsCircleComponent(x, y, radius float64) components.RigidBodyComponent {
 
 }
 
-func HexagonPhysicsObject(x, y, rotation float64, vertices []vec.Vec2) components.RigidBodyComponent {
+func HexagonPhysicsObject(x, y, rotation float64, vertices []vec.Vec2) components.RigidBody {
 
 	body := components.NewRigidBodyPolygon(x, y, 10, vertices, true)
 	body.Elasticity = 0.3
@@ -44,7 +43,7 @@ func HexagonPhysicsObject(x, y, rotation float64, vertices []vec.Vec2) component
 	return *body
 }
 
-func CirclePhysicsObject(x, y, radius, rotation float64) components.RigidBodyComponent {
+func CirclePhysicsObject(x, y, radius, rotation float64) components.RigidBody {
 
 	body := components.NewRigidBodyCircle(x, y, radius, 10, true)
 	body.Elasticity = 0.3
@@ -54,7 +53,7 @@ func CirclePhysicsObject(x, y, radius, rotation float64) components.RigidBodyCom
 	return *body
 }
 
-func BoxPhysicsObject(x, y, w, h, rotation float64) components.RigidBodyComponent {
+func BoxPhysicsObject(x, y, w, h, rotation float64) components.RigidBody {
 
 	body := components.NewRigidBodyBox(x, y, w, h, 10, true)
 	body.Elasticity = 0.3
@@ -65,7 +64,7 @@ func BoxPhysicsObject(x, y, w, h, rotation float64) components.RigidBodyComponen
 	return *body
 }
 
-func BoxPhysicsObjectLinear(x, y, w, h float64) components.RigidBodyComponent {
+func BoxPhysicsObjectLinear(x, y, w, h float64) components.RigidBody {
 
 	body := components.NewRigidBodyBox(x, y, w, h, 10, false)
 	body.Elasticity = 0.5

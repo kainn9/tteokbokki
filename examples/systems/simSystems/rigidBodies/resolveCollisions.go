@@ -1,10 +1,9 @@
 package rigidBodiesSimSystems
 
 import (
-	"github/kainn9/tteobokkiExamples/globals"
-
 	"github.com/kainn9/coldBrew"
 	"github.com/kainn9/tteokbokki/components"
+	"github.com/kainn9/tteokbokki/examples/globals"
 
 	"github.com/kainn9/tteokbokki/physics"
 	"github.com/yohamta/donburi"
@@ -17,10 +16,6 @@ type ResolveCollisions struct {
 
 func (RigidBodiesStruct) NewResolveCollisionsSystem(scene *coldBrew.Scene) ResolveCollisions {
 	return ResolveCollisions{Scene: *scene}
-}
-
-func (ResolveCollisions) CustomIteration() bool {
-	return true
 }
 
 func (ResolveCollisions) Query() *donburi.Query {
@@ -37,7 +32,7 @@ func (sys ResolveCollisions) Run(dt float64, _ *donburi.Entry) {
 	query := sys.Query()
 	w := sys.Scene.World
 
-	bodies := make([]*components.RigidBodyComponent, 0)
+	bodies := make([]*components.RigidBody, 0)
 
 	query.Each(w, func(entry *donburi.Entry) {
 
@@ -46,12 +41,6 @@ func (sys ResolveCollisions) Run(dt float64, _ *donburi.Entry) {
 
 		} else {
 			groupEntries := globals.RigidBodyComponents.Get(entry)
-
-			// for i := range *groupEntries {
-			// 	e := (*groupEntries)[i]
-			// 	bodies = append(bodies, e)
-			// }
-
 			bodies = append(bodies, *groupEntries...)
 		}
 
@@ -67,9 +56,9 @@ func (sys ResolveCollisions) Run(dt float64, _ *donburi.Entry) {
 			if isColliding, contacts := physics.Collision.Check(a, b); isColliding {
 
 				for _, contact := range contacts {
-					pc := components.NewPenConstraint(contact)
-					physics.Solver.PreSolvePenConstraint(pc, dt)
-					physics.Solver.SolvePenConstraint(pc)
+					pc := components.NewPenConstraint(contact, a, b)
+					physics.Solver.PreSolvePenConstraint(pc, a, b, dt)
+					physics.Solver.SolvePenConstraint(pc, a, b)
 				}
 
 			}

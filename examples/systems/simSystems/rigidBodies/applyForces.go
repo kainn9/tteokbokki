@@ -1,7 +1,7 @@
 package rigidBodiesSimSystems
 
 import (
-	"github/kainn9/tteobokkiExamples/globals"
+	"github.com/kainn9/tteokbokki/examples/globals"
 
 	"github.com/kainn9/coldBrew"
 	"github.com/kainn9/tteokbokki/components"
@@ -47,7 +47,7 @@ func (sys ApplyForces) Run(dt float64, entry *donburi.Entry) {
 
 }
 
-func runHelper(dt float64, body *components.RigidBodyComponent) {
+func runHelper(dt float64, body *components.RigidBody) {
 	weightForce, _ := physics.Force.NewWeightForce(body.GetMass())
 	physics.Transformer.AddForce(body, weightForce)
 

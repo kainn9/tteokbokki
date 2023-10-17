@@ -76,7 +76,7 @@ func (ForcesFactory) NewFrictionForce(velocity vec.Vec2, frictionCoefficient flo
 
 // Creates a new attraction force to apply attraction between two RigidBodies.
 // Will weaken force based on minDist and maxDist.
-func (ForcesFactory) NewAttractionForceSoft(a, b components.RigidBodyComponent, aFactor, minDist, maxDist float64) vec.Vec2 {
+func (ForcesFactory) NewAttractionForceSoft(a, b components.RigidBody, aFactor, minDist, maxDist float64) vec.Vec2 {
 
 	distance := b.Pos.Sub(a.Pos)
 
@@ -96,7 +96,7 @@ func (ForcesFactory) NewAttractionForceSoft(a, b components.RigidBodyComponent, 
 
 // Creates a new attraction force to apply attraction between two RigidBodies.
 // Will disable force based on minDist and maxDist.
-func (ForcesFactory) NewAttractionForceHard(a, b components.RigidBodyComponent, aFactor, minDist, maxDist float64) vec.Vec2 {
+func (ForcesFactory) NewAttractionForceHard(a, b components.RigidBody, aFactor, minDist, maxDist float64) vec.Vec2 {
 
 	distance := b.Pos.Sub(a.Pos)
 	distSq := distance.MagSquared()
@@ -117,7 +117,7 @@ func (ForcesFactory) NewAttractionForceHard(a, b components.RigidBodyComponent, 
 }
 
 // Creates a new spring force to apply spring force between two RigidBodies.
-func (ForcesFactory) NewSpringForce(rigidBody, anchorBody components.RigidBodyComponent, restLen, k float64) vec.Vec2 {
+func (ForcesFactory) NewSpringForce(rigidBody, anchorBody components.RigidBody, restLen, k float64) vec.Vec2 {
 
 	distance := rigidBody.Pos.Sub(anchorBody.Pos)
 

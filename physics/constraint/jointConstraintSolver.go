@@ -9,7 +9,7 @@ import (
 
 var transformer = transform.Transformer{}
 
-func (s *Solver) PreSolveJointConstraintLinear(jc *components.JointConstraintComponent, dt float64) {
+func (s *Solver) PreSolveJointConstraintLinear(jc *components.JointConstraint, dt float64) {
 
 	pa := jc.A.LocalToWorldSpace(jc.ALocal)
 	pb := jc.B.Pos
@@ -38,7 +38,7 @@ func (s *Solver) PreSolveJointConstraintLinear(jc *components.JointConstraintCom
 
 }
 
-func (s *Solver) SolveJointConstraintLinear(jc *components.JointConstraintComponent) {
+func (s *Solver) SolveJointConstraintLinear(jc *components.JointConstraint) {
 
 	invMassMat := getInverseMassMatrix(*jc.A, *jc.B)
 	velSlice := getVelocitiesSlice(*jc.A, *jc.B)
@@ -61,7 +61,7 @@ func (s *Solver) SolveJointConstraintLinear(jc *components.JointConstraintCompon
 
 }
 
-func (s *Solver) PreSolveJointConstraint(jc *components.JointConstraintComponent, dt float64) {
+func (s *Solver) PreSolveJointConstraint(jc *components.JointConstraint, dt float64) {
 
 	a := jc.A
 	b := jc.B
@@ -108,7 +108,7 @@ func (s *Solver) PreSolveJointConstraint(jc *components.JointConstraintComponent
 	jc.Bias = (beta / dt) * positionalError
 }
 
-func (s *Solver) SolveJointConstraint(jc *components.JointConstraintComponent) {
+func (s *Solver) SolveJointConstraint(jc *components.JointConstraint) {
 	a := jc.A
 	b := jc.B
 

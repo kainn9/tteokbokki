@@ -1,14 +1,12 @@
 package scenes
 
 import (
-	"github/kainn9/tteobokkiExamples/factory"
-	"github/kainn9/tteobokkiExamples/globals"
-
 	"github.com/kainn9/coldBrew"
 	"github.com/kainn9/tteokbokki/components"
+	"github.com/kainn9/tteokbokki/examples/factory"
+	"github.com/kainn9/tteokbokki/examples/globals"
+	"github.com/kainn9/tteokbokki/examples/systems"
 	"github.com/kainn9/tteokbokki/math/vec"
-
-	"github/kainn9/tteobokkiExamples/systems"
 )
 
 type SimpleRigidBodiesSceneStruct struct{}
@@ -23,7 +21,7 @@ func (SimpleRigidBodiesSceneStruct) New(m *coldBrew.Manager) *coldBrew.Scene {
 
 	clicks := make([]vec.Vec2, 0)
 
-	scene := coldBrew.NewScene(m)
+	scene := coldBrew.NewScene(m, globals.GAME_WIDTH, globals.GAME_HEIGHT)
 
 	scene.AddSystem(systems.RenderSystems.RigidBodies.NewRenderShapesSystem())
 
@@ -68,7 +66,7 @@ func (SimpleRigidBodiesSceneStruct) New(m *coldBrew.Manager) *coldBrew.Scene {
 	jBodyDataA := components.NewRigidBodyCircle(200, 400, 10, 0, false)
 	jBodyDataB := components.NewRigidBodyBox(jBodyDataA.Pos.X-120, jBodyDataA.Pos.Y, 120, 30, 5, true)
 
-	jointBodies := []*components.RigidBodyComponent{
+	jointBodies := []*components.RigidBody{
 		jBodyDataA,
 		jBodyDataB,
 	}

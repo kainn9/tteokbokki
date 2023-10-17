@@ -8,7 +8,7 @@ import (
 
 // A rigid body component.
 // Can be used by physics package to simulate 2D physics.
-type RigidBodyComponent struct {
+type RigidBody struct {
 	Pos, Vel, Accel, SumForces        vec.Vec2
 	InverseMass, Elasticity, Friction float64
 
@@ -19,9 +19,9 @@ type RigidBodyComponent struct {
 	// angular forces/impulses.
 	Unstoppable bool
 
-	*AngularDataComponent
-	Circle  *CircleComponent
-	Polygon *PolygonComponent
+	*AngularData
+	Circle  *Circle
+	Polygon *Polygon
 }
 
 type RigidBodyShapeError struct {
@@ -33,18 +33,18 @@ func (e RigidBodyShapeError) Error() string {
 }
 
 // Returns a new RigidBody with a Circle shape.
-func NewRigidBodyCircle(x, y, radius, mass float64, angular bool) *RigidBodyComponent {
+func NewRigidBodyCircle(x, y, radius, mass float64, angular bool) *RigidBody {
 
 	shape := NewCircleShape(radius)
 	angularData := NewAngularData(0, 0, 0, 0, 0)
 
-	body := &RigidBodyComponent{
+	body := &RigidBody{
 		Pos: vec.Vec2{X: x, Y: y},
 
-		Elasticity:           1.0,
-		Friction:             0.5,
-		AngularDataComponent: angularData,
-		Circle:               shape,
+		Elasticity:  1.0,
+		Friction:    0.5,
+		AngularData: angularData,
+		Circle:      shape,
 	}
 
 	body.SetMass(mass)
@@ -59,22 +59,22 @@ func NewRigidBodyCircle(x, y, radius, mass float64, angular bool) *RigidBodyComp
 }
 
 // Returns a new RigidBody with a Box shape.
-func NewRigidBodyBox(x, y, w, h, mass float64, angular bool) *RigidBodyComponent {
+func NewRigidBodyBox(x, y, w, h, mass float64, angular bool) *RigidBody {
 
 	shape := NewBoxShape(w, h)
 	angularData := NewAngularData(0, 0, 0, 0, 0)
 
-	body := &RigidBodyComponent{
-		Pos:                  vec.Vec2{X: x, Y: y},
-		Elasticity:           0.5,
-		Friction:             0.030,
-		AngularDataComponent: angularData,
-		Polygon:              shape,
+	body := &RigidBody{
+		Pos:         vec.Vec2{X: x, Y: y},
+		Elasticity:  0.5,
+		Friction:    0.030,
+		AngularData: angularData,
+		Polygon:     shape,
 	}
 	body.SetMass(mass)
 
 	if angular {
-		body.SetAngularMass(shape.BoxComponent.GetMomentOfInertiaWithoutMass() * mass)
+		body.SetAngularMass(shape.Box.GetMomentOfInertiaWithoutMass() * mass)
 	} else {
 		body.SetAngularMass(0)
 	}
@@ -85,17 +85,17 @@ func NewRigidBodyBox(x, y, w, h, mass float64, angular bool) *RigidBodyComponent
 }
 
 // Returns a new RigidBody from an []vertices. Must be convex.
-func NewRigidBodyPolygon(x, y, mass float64, vertices []vec.Vec2, angular bool) *RigidBodyComponent {
+func NewRigidBodyPolygon(x, y, mass float64, vertices []vec.Vec2, angular bool) *RigidBody {
 
 	shape := NewPolyShape(vertices)
 	angularData := NewAngularData(0, 0, 0, 0, 0)
 
-	body := &RigidBodyComponent{
-		Pos:                  vec.Vec2{X: x, Y: y},
-		Elasticity:           0.3,
-		Friction:             0.4,
-		AngularDataComponent: angularData,
-		Polygon:              shape,
+	body := &RigidBody{
+		Pos:         vec.Vec2{X: x, Y: y},
+		Elasticity:  0.3,
+		Friction:    0.4,
+		AngularData: angularData,
+		Polygon:     shape,
 	}
 
 	body.SetMass(mass)
@@ -111,7 +111,7 @@ func NewRigidBodyPolygon(x, y, mass float64, vertices []vec.Vec2, angular bool) 
 	return body
 }
 
-func (rb *RigidBodyComponent) Validate() error {
+func (rb *RigidBody) Validate() error {
 	// count how many shape components are assigned
 	count := 0
 	if rb.Circle != nil {
@@ -134,19 +134,19 @@ func (rb *RigidBodyComponent) Validate() error {
 	return nil
 }
 
-func (rb *RigidBodyComponent) IsStatic() bool {
+func (rb *RigidBody) IsStatic() bool {
 	return rb.InverseMass == 0
 }
 
-func (rb *RigidBodyComponent) IsLinearOnly() bool {
+func (rb *RigidBody) IsLinearOnly() bool {
 	return rb.InverseAngularMass == 0
 }
 
-func (rb *RigidBodyComponent) IsAngular() bool {
+func (rb *RigidBody) IsAngular() bool {
 	return !rb.IsLinearOnly()
 }
 
-func (rb *RigidBodyComponent) SetMass(mass float64) {
+func (rb *RigidBody) SetMass(mass float64) {
 	if mass == 0 {
 		rb.InverseMass = 0
 		return
@@ -156,7 +156,7 @@ func (rb *RigidBodyComponent) SetMass(mass float64) {
 
 }
 
-func (rb *RigidBodyComponent) GetMass() float64 {
+func (rb *RigidBody) GetMass() float64 {
 	if rb.IsStatic() {
 		return 0
 	}
@@ -164,7 +164,7 @@ func (rb *RigidBodyComponent) GetMass() float64 {
 	return 1 / rb.InverseMass
 }
 
-func (rb *RigidBodyComponent) SetAngularMass(angularMass float64) {
+func (rb *RigidBody) SetAngularMass(angularMass float64) {
 	if angularMass == 0 {
 		rb.InverseAngularMass = 0
 		return
@@ -174,7 +174,7 @@ func (rb *RigidBodyComponent) SetAngularMass(angularMass float64) {
 
 }
 
-func (rb *RigidBodyComponent) GetAngularMass() float64 {
+func (rb *RigidBody) GetAngularMass() float64 {
 	if rb.InverseAngularMass == 0 {
 		return 0
 	}
@@ -183,7 +183,7 @@ func (rb *RigidBodyComponent) GetAngularMass() float64 {
 }
 
 // Update the vertices of a RigidBody's local space to world space.
-func (rb *RigidBodyComponent) UpdateVertices() error {
+func (rb *RigidBody) UpdateVertices() error {
 	if rb.Polygon == nil {
 		return RigidBodyShapeError{
 			"Cannot call UpdateVertices() on rb with nil polygon.",
@@ -206,12 +206,12 @@ func (rb *RigidBodyComponent) UpdateVertices() error {
 
 // returns a point from local space to world space, relative
 // to a RigidBody's position and rotation.
-func (rb *RigidBodyComponent) LocalToWorldSpace(point vec.Vec2) vec.Vec2 {
+func (rb *RigidBody) LocalToWorldSpace(point vec.Vec2) vec.Vec2 {
 	return point.Rotate(rb.Rotation).Add(rb.Pos)
 }
 
 // returns a point from world space to local space, relative
 // to a RigidBody's position and rotation.
-func (rb *RigidBodyComponent) WorldToLocalSpace(point vec.Vec2) vec.Vec2 {
+func (rb *RigidBody) WorldToLocalSpace(point vec.Vec2) vec.Vec2 {
 	return point.Sub(rb.Pos).Rotate(-rb.Rotation)
 }

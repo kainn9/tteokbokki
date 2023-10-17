@@ -6,27 +6,27 @@ import (
 )
 
 // Apply a force to a RigidBody.
-func (Transformer) AddForce(rb *components.RigidBodyComponent, f vec.Vec2) {
+func (Transformer) AddForce(rb *components.RigidBody, f vec.Vec2) {
 	rb.SumForces = rb.SumForces.Add(f)
 }
 
 // Clear all forces applied to a RigidBody.
-func (Transformer) ClearForces(rb *components.RigidBodyComponent) {
+func (Transformer) ClearForces(rb *components.RigidBody) {
 	rb.SumForces = vec.Vec2{}
 }
 
 // Apply a rotation force to a RigidBody.
-func (Transformer) AddTorque(t float64, rb *components.RigidBodyComponent) {
+func (Transformer) AddTorque(t float64, rb *components.RigidBody) {
 	rb.SumTorque += t
 }
 
 // Clear all rotation forces applied to a RigidBody.
-func (Transformer) ClearTorque(rb *components.RigidBodyComponent) {
+func (Transformer) ClearTorque(rb *components.RigidBody) {
 	rb.SumTorque = 0.0
 }
 
 // Integrate a RigidBody. Euler integration is used.
-func (t Transformer) Integrate(rb *components.RigidBodyComponent, dt float64) {
+func (t Transformer) Integrate(rb *components.RigidBody, dt float64) {
 	if rb.IsStatic() {
 		return
 	}
@@ -36,7 +36,7 @@ func (t Transformer) Integrate(rb *components.RigidBodyComponent, dt float64) {
 }
 
 // Apply a immediate change in velocity to a RigidBody.
-func (Transformer) ApplyImpulseLinear(rb *components.RigidBodyComponent, linearImpulseFactor vec.Vec2) {
+func (Transformer) ApplyImpulseLinear(rb *components.RigidBody, linearImpulseFactor vec.Vec2) {
 	if rb.IsStatic() {
 		return
 	}
@@ -48,7 +48,7 @@ func (Transformer) ApplyImpulseLinear(rb *components.RigidBodyComponent, linearI
 
 // Apply a immediate change in angularVelocity to a RigidBody.
 // Will not work on linear only bodies.
-func (t Transformer) ApplyImpulseAngular(rb *components.RigidBodyComponent, angularImpulse float64) {
+func (t Transformer) ApplyImpulseAngular(rb *components.RigidBody, angularImpulse float64) {
 
 	if rb.IsStatic() || rb.IsLinearOnly() {
 		return
@@ -59,7 +59,7 @@ func (t Transformer) ApplyImpulseAngular(rb *components.RigidBodyComponent, angu
 
 // Apply a immediate change in velocity && angularVelocity to a RigidBody.
 // Will work on both linear and angular bodies.
-func (t Transformer) ApplyImpulse(rb *components.RigidBodyComponent, linearImpulseFactor, angularImpulseFactor vec.Vec2) {
+func (t Transformer) ApplyImpulse(rb *components.RigidBody, linearImpulseFactor, angularImpulseFactor vec.Vec2) {
 
 	if rb.IsStatic() {
 		return
@@ -73,7 +73,7 @@ func (t Transformer) ApplyImpulse(rb *components.RigidBodyComponent, linearImpul
 
 }
 
-func (s Transformer) integrateLinear(rb *components.RigidBodyComponent, dt float64) {
+func (s Transformer) integrateLinear(rb *components.RigidBody, dt float64) {
 
 	rb.Accel = rb.SumForces.Scale(rb.InverseMass)
 
@@ -84,7 +84,7 @@ func (s Transformer) integrateLinear(rb *components.RigidBodyComponent, dt float
 	s.ClearForces(rb)
 }
 
-func (t Transformer) integrateAngular(rb *components.RigidBodyComponent, dt float64) {
+func (t Transformer) integrateAngular(rb *components.RigidBody, dt float64) {
 
 	rb.AngularAccel = rb.SumTorque * rb.InverseAngularMass
 

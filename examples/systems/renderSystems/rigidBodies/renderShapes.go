@@ -5,9 +5,8 @@ import (
 
 	"github.com/hajimehoshi/ebiten/v2"
 
-	"github/kainn9/tteobokkiExamples/globals"
-
 	"github.com/kainn9/tteokbokki/components"
+	"github.com/kainn9/tteokbokki/examples/globals"
 	debugRender "github.com/kainn9/tteokbokki/physics/z_debugRender"
 	"github.com/yohamta/donburi"
 	"github.com/yohamta/donburi/filter"
@@ -45,7 +44,7 @@ func (RenderShapes) Draw(screen *ebiten.Image, entry *donburi.Entry) {
 	drawHelper(screen, rigidBody)
 }
 
-func drawHelper(screen *ebiten.Image, body *components.RigidBodyComponent) {
+func drawHelper(screen *ebiten.Image, body *components.RigidBody) {
 
 	red := color.RGBA{R: 255, G: 0, B: 0, A: 255}
 

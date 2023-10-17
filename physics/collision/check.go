@@ -9,7 +9,7 @@ import (
 
 // Check performs collision detection between two rigid bodies.
 // Returns true if the two rigid bodies are colliding, and a contact object.
-func (CollisionChecker) Check(a, b *components.RigidBodyComponent) (bool, []components.ContactComponent) {
+func (CollisionChecker) Check(a, b *components.RigidBody) (bool, []components.Contact) {
 	if a.Circle != nil && b.Circle != nil {
 		return checkCircleCollision(a, b)
 	}
@@ -19,20 +19,20 @@ func (CollisionChecker) Check(a, b *components.RigidBodyComponent) (bool, []comp
 	}
 
 	if a.Polygon != nil && b.Circle != nil {
-		return checkPolygonCircleCollision(a, b)
+		return checkPolygonCircleCollision(a, b, false)
 	}
 
 	if a.Circle != nil && b.Polygon != nil {
-		return checkPolygonCircleCollision(b, a)
+		return checkPolygonCircleCollision(b, a, true)
 	}
 
-	return false, make([]components.ContactComponent, 0)
+	return false, make([]components.Contact, 0)
 }
 
 // FindMinSep finds the minimum separation between two rigid bodies.
 // Requires vertices and will not work with circles.
 // Note: reference edge is the edge with the greatest penetration.
-func FindMinSep(a, b components.RigidBodyComponent) (minSep float64, indexReferenceEdge int, penPoint vec.Vec2) {
+func FindMinSep(a, b components.RigidBody) (minSep float64, indexReferenceEdge int, penPoint vec.Vec2) {
 
 	sep := -math.MaxFloat64
 
@@ -67,7 +67,7 @@ func FindMinSep(a, b components.RigidBodyComponent) (minSep float64, indexRefere
 
 // Incident edge is the edge of the incident edge is
 // with the normal most unaligned with the reference edge normal.
-func FindIncidentEdgeIndex(incidentBody *components.RigidBodyComponent, refEdgeNormal vec.Vec2) int {
+func FindIncidentEdgeIndex(incidentBody *components.RigidBody, refEdgeNormal vec.Vec2) int {
 	var incidentEdgeIndex int
 	minProjection := math.MaxFloat64
 
@@ -87,7 +87,7 @@ func FindIncidentEdgeIndex(incidentBody *components.RigidBodyComponent, refEdgeN
 }
 
 // GetEdge returns the edge, and the two vertices that make up the edge.
-func GetEdge(index int, rb components.RigidBodyComponent) (edge, v1, v2 vec.Vec2) {
+func GetEdge(index int, rb components.RigidBody) (edge, v1, v2 vec.Vec2) {
 
 	nextIndex := (index + 1) % len(rb.Polygon.WorldVertices)
 
@@ -97,7 +97,7 @@ func GetEdge(index int, rb components.RigidBodyComponent) (edge, v1, v2 vec.Vec2
 	return vb.Sub(va), va, vb
 }
 
-func checkCircleCollision(a, b *components.RigidBodyComponent) (isColliding bool, contacts []components.ContactComponent) {
+func checkCircleCollision(a, b *components.RigidBody) (isColliding bool, contacts []components.Contact) {
 
 	contacts = append(contacts, components.NewContact())
 	cPtr := &contacts[0]
@@ -113,8 +113,6 @@ func checkCircleCollision(a, b *components.RigidBodyComponent) (isColliding bool
 		return isColliding, contacts
 	}
 
-	cPtr.A = a
-	cPtr.B = b
 	cPtr.Normal = distanceBetween.Norm()
 
 	cPtr.Start = b.Pos.Sub(cPtr.Normal.Scale(b.Circle.Radius))
@@ -126,7 +124,7 @@ func checkCircleCollision(a, b *components.RigidBodyComponent) (isColliding bool
 
 }
 
-func checkPolygonCollision(a, b *components.RigidBodyComponent) (isColliding bool, contacts []components.ContactComponent) {
+func checkPolygonCollision(a, b *components.RigidBody) (isColliding bool, contacts []components.Contact) {
 	// Reference edge is the edge with the greatest penetration.
 	// The incident edge the edge from the penetrating body that has
 	// the normal most unaligned with the reference edge normal.
@@ -144,8 +142,8 @@ func checkPolygonCollision(a, b *components.RigidBodyComponent) (isColliding boo
 	// Determine which body is the reference body
 	// and which is the incident body, based on the
 	// minimum separation.
-	var refBody *components.RigidBodyComponent
-	var incidentBody *components.RigidBodyComponent
+	var refBody *components.RigidBody
+	var incidentBody *components.RigidBody
 	var indexReferenceEdge int
 
 	if minSepA > minSepB {
@@ -228,8 +226,6 @@ func checkPolygonCollision(a, b *components.RigidBodyComponent) (isColliding boo
 		}
 
 		c := components.NewContact()
-		c.A = a
-		c.B = b
 		c.Normal = referenceEdgeNormal
 		c.Start = vertClip
 		c.End = vertClip.Add(referenceEdgeNormal.Scale(-separation))
@@ -246,7 +242,21 @@ func checkPolygonCollision(a, b *components.RigidBodyComponent) (isColliding boo
 	return true, contacts
 }
 
-func checkPolygonCircleCollision(polygonBody, circleBody *components.RigidBodyComponent) (isColliding bool, contacts []components.ContactComponent) {
+func checkPolygonCircleCollision(polygonBody, circleBody *components.RigidBody, abSwapped bool) (isColliding bool, contacts []components.Contact) {
+	// If abSwapped is true, we need to swap the normal and
+	// start/end. This is because the normal is always calculated
+	// from the polygon to the circle(vertToCircleCenter).
+	defer func() {
+		if !abSwapped {
+			return
+		}
+
+		for i := range contacts {
+			contacts[i].Normal = contacts[i].Normal.Scale(-1)
+			contacts[i].Start, contacts[i].End = contacts[i].End, contacts[i].Start
+		}
+	}()
+
 	contacts = append(contacts, components.NewContact())
 	cPtr := &contacts[0]
 
@@ -298,8 +308,6 @@ func checkPolygonCircleCollision(polygonBody, circleBody *components.RigidBodyCo
 			if mag > circleBody.Circle.Radius {
 				return false, contacts
 			} else {
-				cPtr.A = polygonBody
-				cPtr.B = circleBody
 				cPtr.Depth = circleBody.Circle.Radius - mag
 				cPtr.Normal = vertToCircleCenter.Norm()
 				cPtr.Start = circleBody.Pos.Add(cPtr.Normal.Scale(-circleBody.Circle.Radius))
@@ -321,8 +329,6 @@ func checkPolygonCircleCollision(polygonBody, circleBody *components.RigidBodyCo
 			if mag > circleBody.Circle.Radius {
 				return false, contacts
 			} else {
-				cPtr.A = polygonBody
-				cPtr.B = circleBody
 				cPtr.Depth = circleBody.Circle.Radius - mag
 				cPtr.Normal = vertToCircleCenter.Norm()
 				cPtr.Start = circleBody.Pos.Add(cPtr.Normal.Scale(-circleBody.Circle.Radius))
@@ -337,8 +343,6 @@ func checkPolygonCircleCollision(polygonBody, circleBody *components.RigidBodyCo
 			return false, contacts
 		}
 
-		cPtr.A = polygonBody
-		cPtr.B = circleBody
 		cPtr.Depth = circleBody.Circle.Radius - distCircleEdge
 		cPtr.Normal = minNextVert.Sub(minCurrVert).Perpendicular().Norm()
 
@@ -351,8 +355,6 @@ func checkPolygonCircleCollision(polygonBody, circleBody *components.RigidBodyCo
 
 	// If circle center is inside the polygon
 	// we are definitely colliding
-	cPtr.A = polygonBody
-	cPtr.B = circleBody
 	cPtr.Depth = circleBody.Circle.Radius - distCircleEdge
 	cPtr.Normal = minNextVert.Sub(minCurrVert).Perpendicular().Norm()
 	cPtr.Start = circleBody.Pos.Sub(cPtr.Normal.Scale(circleBody.Circle.Radius))
