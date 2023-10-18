@@ -1,15 +1,15 @@
-package components
+package tBokiComponents
 
 import (
 	"fmt"
 
-	"github.com/kainn9/tteokbokki/math/vec"
+	tBokiVec "github.com/kainn9/tteokbokki/math/vec"
 )
 
 // A rigid body component.
 // Can be used by physics package to simulate 2D physics.
 type RigidBody struct {
-	Pos, Vel, Accel, SumForces        vec.Vec2
+	Pos, Vel, Accel, SumForces        tBokiVec.Vec2
 	InverseMass, Elasticity, Friction float64
 
 	// Rigid Body will behave as if it has infinite mass when
@@ -39,7 +39,7 @@ func NewRigidBodyCircle(x, y, radius, mass float64, angular bool) *RigidBody {
 	angularData := NewAngularData(0, 0, 0, 0, 0)
 
 	body := &RigidBody{
-		Pos: vec.Vec2{X: x, Y: y},
+		Pos: tBokiVec.Vec2{X: x, Y: y},
 
 		Elasticity:  1.0,
 		Friction:    0.5,
@@ -65,7 +65,7 @@ func NewRigidBodyBox(x, y, w, h, mass float64, angular bool) *RigidBody {
 	angularData := NewAngularData(0, 0, 0, 0, 0)
 
 	body := &RigidBody{
-		Pos:         vec.Vec2{X: x, Y: y},
+		Pos:         tBokiVec.Vec2{X: x, Y: y},
 		Elasticity:  0.5,
 		Friction:    0.030,
 		AngularData: angularData,
@@ -85,13 +85,13 @@ func NewRigidBodyBox(x, y, w, h, mass float64, angular bool) *RigidBody {
 }
 
 // Returns a new RigidBody from an []vertices. Must be convex.
-func NewRigidBodyPolygon(x, y, mass float64, vertices []vec.Vec2, angular bool) *RigidBody {
+func NewRigidBodyPolygon(x, y, mass float64, vertices []tBokiVec.Vec2, angular bool) *RigidBody {
 
 	shape := NewPolyShape(vertices)
 	angularData := NewAngularData(0, 0, 0, 0, 0)
 
 	body := &RigidBody{
-		Pos:         vec.Vec2{X: x, Y: y},
+		Pos:         tBokiVec.Vec2{X: x, Y: y},
 		Elasticity:  0.3,
 		Friction:    0.4,
 		AngularData: angularData,
@@ -206,12 +206,12 @@ func (rb *RigidBody) UpdateVertices() error {
 
 // returns a point from local space to world space, relative
 // to a RigidBody's position and rotation.
-func (rb *RigidBody) LocalToWorldSpace(point vec.Vec2) vec.Vec2 {
+func (rb *RigidBody) LocalToWorldSpace(point tBokiVec.Vec2) tBokiVec.Vec2 {
 	return point.Rotate(rb.Rotation).Add(rb.Pos)
 }
 
 // returns a point from world space to local space, relative
 // to a RigidBody's position and rotation.
-func (rb *RigidBody) WorldToLocalSpace(point vec.Vec2) vec.Vec2 {
+func (rb *RigidBody) WorldToLocalSpace(point tBokiVec.Vec2) tBokiVec.Vec2 {
 	return point.Sub(rb.Pos).Rotate(-rb.Rotation)
 }

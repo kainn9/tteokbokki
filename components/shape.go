@@ -1,8 +1,6 @@
-package components
+package tBokiComponents
 
-import (
-	"github.com/kainn9/tteokbokki/math/vec"
-)
+import tBokiVec "github.com/kainn9/tteokbokki/math/vec"
 
 // Various shapes that can be assumed by a rigid body.
 
@@ -16,8 +14,8 @@ type Circle struct {
 // the body should be treated as a box, vertices should be dictated
 // by the box's width/height/position.
 type Polygon struct {
-	LocalVertices []vec.Vec2
-	WorldVertices []vec.Vec2
+	LocalVertices []tBokiVec.Vec2
+	WorldVertices []tBokiVec.Vec2
 	*Box
 }
 
@@ -74,26 +72,26 @@ func NewBoxShape(width, height float64) *Polygon {
 	}
 
 	// local
-	p.LocalVertices = append(p.LocalVertices, vec.Vec2{X: -width / 2.0, Y: -height / 2.0}) // top left
-	p.LocalVertices = append(p.LocalVertices, vec.Vec2{X: width / 2.0, Y: -height / 2.0})  // top right
-	p.LocalVertices = append(p.LocalVertices, vec.Vec2{X: width / 2.0, Y: height / 2.0})   // bottom right
-	p.LocalVertices = append(p.LocalVertices, vec.Vec2{X: -width / 2.0, Y: height / 2.0})  // bottom left
+	p.LocalVertices = append(p.LocalVertices, tBokiVec.Vec2{X: -width / 2.0, Y: -height / 2.0}) // top left
+	p.LocalVertices = append(p.LocalVertices, tBokiVec.Vec2{X: width / 2.0, Y: -height / 2.0})  // top right
+	p.LocalVertices = append(p.LocalVertices, tBokiVec.Vec2{X: width / 2.0, Y: height / 2.0})   // bottom right
+	p.LocalVertices = append(p.LocalVertices, tBokiVec.Vec2{X: -width / 2.0, Y: height / 2.0})  // bottom left
 
 	// world
-	p.WorldVertices = append(p.WorldVertices, vec.Vec2{X: -width / 2.0, Y: -height / 2.0}) // top left
-	p.WorldVertices = append(p.WorldVertices, vec.Vec2{X: width / 2.0, Y: -height / 2.0})  // top right
-	p.WorldVertices = append(p.WorldVertices, vec.Vec2{X: width / 2.0, Y: height / 2.0})   // bottom right
-	p.WorldVertices = append(p.WorldVertices, vec.Vec2{X: -width / 2.0, Y: height / 2.0})  // bottom left
+	p.WorldVertices = append(p.WorldVertices, tBokiVec.Vec2{X: -width / 2.0, Y: -height / 2.0}) // top left
+	p.WorldVertices = append(p.WorldVertices, tBokiVec.Vec2{X: width / 2.0, Y: -height / 2.0})  // top right
+	p.WorldVertices = append(p.WorldVertices, tBokiVec.Vec2{X: width / 2.0, Y: height / 2.0})   // bottom right
+	p.WorldVertices = append(p.WorldVertices, tBokiVec.Vec2{X: -width / 2.0, Y: height / 2.0})  // bottom left
 
 	p.Box = b
 
 	return p
 }
 
-func NewPolyShape(vertices []vec.Vec2) *Polygon {
+func NewPolyShape(vertices []tBokiVec.Vec2) *Polygon {
 
-	localVertices := make([]vec.Vec2, len(vertices))
-	worldVertices := make([]vec.Vec2, len(vertices))
+	localVertices := make([]tBokiVec.Vec2, len(vertices))
+	worldVertices := make([]tBokiVec.Vec2, len(vertices))
 
 	copy(localVertices, vertices)
 	copy(worldVertices, vertices)

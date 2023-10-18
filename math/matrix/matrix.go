@@ -1,11 +1,11 @@
-package matrix
+package tBokiMatrix
 
 import (
 	"fmt"
 	"log"
 	"math"
 
-	"github.com/kainn9/tteokbokki/sliceHelper"
+	tBokiSliceHelper "github.com/kainn9/tteokbokki/sliceHelper"
 )
 
 // MatRC is a matrix represented by rows and columns.
@@ -73,7 +73,7 @@ func (matA MatRC) Multiply(matB MatRC) (MatRC, error) {
 
 	for i := 0; i < matA.RowCount; i++ {
 		for j := 0; j < matB.ColCount; j++ {
-			resultValue := sliceHelper.ScalarProduct(*(*matA.Rows)[i], *(*transposedB.Rows)[j])
+			resultValue := tBokiSliceHelper.ScalarProduct(*(*matA.Rows)[i], *(*transposedB.Rows)[j])
 			(*(*result.Rows)[i])[j] = resultValue
 		}
 	}
@@ -92,7 +92,7 @@ func (mat MatRC) MultiplyBySlice(slice []float64) ([]float64, error) {
 	result := make([]float64, mat.RowCount)
 
 	for i := range result {
-		result[i] = sliceHelper.ScalarProduct(*(*mat.Rows)[i], slice)
+		result[i] = tBokiSliceHelper.ScalarProduct(*(*mat.Rows)[i], slice)
 	}
 
 	return result, nil
@@ -118,7 +118,7 @@ func (mat MatRC) SolveGaussSeidel(slice []float64) []float64 {
 
 		// Calculate the change in the solution for the current equation
 		// dx = (b[i] - dot product of the row and the current solution) / diagonal element
-		dx := (slice[i] / (*(*mat.Rows)[i])[i]) - (sliceHelper.ScalarProduct(*(*mat.Rows)[i], x) / (*(*mat.Rows)[i])[i])
+		dx := (slice[i] / (*(*mat.Rows)[i])[i]) - (tBokiSliceHelper.ScalarProduct(*(*mat.Rows)[i], x) / (*(*mat.Rows)[i])[i])
 
 		// Check if dx is NaN (Not-a-Number); if so, continue to the next equation
 		if math.IsNaN(dx) {

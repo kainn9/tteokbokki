@@ -1,10 +1,10 @@
-package components
+package tBokiComponents
 
-import "github.com/kainn9/tteokbokki/math/vec"
+import tBokiVec "github.com/kainn9/tteokbokki/math/vec"
 
 // Collision data between two rigid bodies.
 type Contact struct {
-	Start, End, Normal vec.Vec2
+	Start, End, Normal tBokiVec.Vec2
 	Depth              float64
 }
 

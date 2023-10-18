@@ -1,4 +1,4 @@
-package sliceHelper
+package tBokiSliceHelper
 
 // Reverses the order of the elements in a slice.
 // Returns a new slice without mutating the original.
