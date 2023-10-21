@@ -29,12 +29,11 @@ func (ShapesRenderer) Query() *donburi.Query {
 }
 
 func (ShapesRenderer) Draw(screen *ebiten.Image, entity *donburi.Entry) {
-	red := color.RGBA{R: 255, G: 0, B: 0, A: 255}
 
 	// When the entity has a single RigidBodyComponent.
 	if entity.HasComponent(components.RigidBodyComponent) {
 		body := components.RigidBodyComponent.Get(entity)
-		drawHelper(body, screen, red)
+		drawHelper(body, screen)
 	}
 
 	// When the entity has multiple RigidBodyComponents.
@@ -42,12 +41,15 @@ func (ShapesRenderer) Draw(screen *ebiten.Image, entity *donburi.Entry) {
 		bodies := components.RigidBodyComponents.Get(entity)
 
 		for _, body := range *bodies {
-			drawHelper(body, screen, red)
+			drawHelper(body, screen)
 		}
 	}
 }
 
-func drawHelper(body *tBokiComponents.RigidBody, screen *ebiten.Image, red color.RGBA) {
+func drawHelper(body *tBokiComponents.RigidBody, screen *ebiten.Image) {
+
+	red := color.RGBA{R: 255, G: 0, B: 0, A: 255}
+	blue := color.RGBA{R: 0, G: 0, B: 255, A: 255}
 
 	if body.Circle != nil {
 		debugRender.DrawCircleBody(screen, *body, red)
@@ -55,4 +57,6 @@ func drawHelper(body *tBokiComponents.RigidBody, screen *ebiten.Image, red color
 	} else {
 		debugRender.DrawPolygonBody(screen, *body, red)
 	}
+
+	debugRender.DrawBroadPhaseSkin(screen, *body, blue)
 }

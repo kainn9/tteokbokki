@@ -2,6 +2,7 @@ package tBokiComponents
 
 import (
 	"fmt"
+	"math"
 
 	tBokiVec "github.com/kainn9/tteokbokki/math/vec"
 )
@@ -20,8 +21,9 @@ type RigidBody struct {
 	Unstoppable bool
 
 	*AngularData
-	Circle  *Circle
-	Polygon *Polygon
+	Circle         *Circle
+	Polygon        *Polygon
+	BroadPhaseSkin *Circle
 }
 
 type RigidBodyShapeError struct {
@@ -41,10 +43,11 @@ func NewRigidBodyCircle(x, y, radius, mass float64, angular bool) *RigidBody {
 	body := &RigidBody{
 		Pos: tBokiVec.Vec2{X: x, Y: y},
 
-		Elasticity:  1.0,
-		Friction:    0.5,
-		AngularData: angularData,
-		Circle:      shape,
+		Elasticity:     1.0,
+		Friction:       0.5,
+		AngularData:    angularData,
+		Circle:         shape,
+		BroadPhaseSkin: shape,
 	}
 
 	body.SetMass(mass)
@@ -64,12 +67,21 @@ func NewRigidBodyBox(x, y, w, h, mass float64, angular bool) *RigidBody {
 	shape := NewBoxShape(w, h)
 	angularData := NewAngularData(0, 0, 0, 0, 0)
 
+	var longestDistanceFromCenter float64
+	for _, vert := range shape.LocalVertices {
+
+		distFromCenter := vert.Sub(tBokiVec.Vec2{X: 0, Y: 0}).Mag()
+
+		longestDistanceFromCenter = math.Max(longestDistanceFromCenter, distFromCenter)
+	}
+
 	body := &RigidBody{
-		Pos:         tBokiVec.Vec2{X: x, Y: y},
-		Elasticity:  0.5,
-		Friction:    0.030,
-		AngularData: angularData,
-		Polygon:     shape,
+		Pos:            tBokiVec.Vec2{X: x, Y: y},
+		Elasticity:     0.5,
+		Friction:       0.030,
+		AngularData:    angularData,
+		Polygon:        shape,
+		BroadPhaseSkin: NewCircleShape(longestDistanceFromCenter),
 	}
 	body.SetMass(mass)
 
@@ -90,12 +102,21 @@ func NewRigidBodyPolygon(x, y, mass float64, vertices []tBokiVec.Vec2, angular b
 	shape := NewPolyShape(vertices)
 	angularData := NewAngularData(0, 0, 0, 0, 0)
 
+	var longestDistanceFromCenter float64
+	for _, vert := range shape.LocalVertices {
+
+		distFromCenter := vert.Sub(tBokiVec.Vec2{X: 0, Y: 0}).Mag()
+
+		longestDistanceFromCenter = math.Max(longestDistanceFromCenter, distFromCenter)
+	}
+
 	body := &RigidBody{
-		Pos:         tBokiVec.Vec2{X: x, Y: y},
-		Elasticity:  0.3,
-		Friction:    0.4,
-		AngularData: angularData,
-		Polygon:     shape,
+		Pos:            tBokiVec.Vec2{X: x, Y: y},
+		Elasticity:     0.3,
+		Friction:       0.4,
+		AngularData:    angularData,
+		Polygon:        shape,
+		BroadPhaseSkin: NewCircleShape(longestDistanceFromCenter),
 	}
 
 	body.SetMass(mass)

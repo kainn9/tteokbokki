@@ -18,10 +18,25 @@ var Detector detector
 // If useResolver is true, the returned contacts should be used with a resolver
 // instead of a penetration solver.
 func (detector) Detect(a, b *tBokiComponents.RigidBody, useResolver bool) (bool, []tBokiComponents.Contact) {
-	if a.Circle != nil && b.Circle != nil {
-		return detectCircleCollision(a, b)
+
+	// First Check using the broad phase skin(circles).
+	broadPhaseCheck, contacts := detectCircleCollision(a, b, true)
+
+	// If the broad phase check fails, we can return early
+	// its not possible for the two bodies to be colliding.
+	if !broadPhaseCheck {
+		return false, contacts
 	}
 
+	// If the broad phase check succeeds, we can skip
+	// the narrow phase check if both bodies are circles,
+	// since the broad phase skin is a circle itself.
+	if a.Circle != nil && b.Circle != nil {
+		return broadPhaseCheck, contacts
+	}
+
+	// Otherwise, we need to perform a narrow phase check
+	// for other shapes/bodies.
 	if a.Polygon != nil && b.Polygon != nil {
 		if useResolver {
 			return detectPolygonCollision(a, b)
@@ -40,14 +55,22 @@ func (detector) Detect(a, b *tBokiComponents.RigidBody, useResolver bool) (bool,
 	return false, make([]tBokiComponents.Contact, 0)
 }
 
-func detectCircleCollision(a, b *tBokiComponents.RigidBody) (isColliding bool, contacts []tBokiComponents.Contact) {
+func detectCircleCollision(a, b *tBokiComponents.RigidBody, broadPhaseCheck bool) (isColliding bool, contacts []tBokiComponents.Contact) {
+
+	circleA := a.Circle
+	circleB := b.Circle
+
+	if broadPhaseCheck {
+		circleA = a.BroadPhaseSkin
+		circleB = b.BroadPhaseSkin
+	}
 
 	contacts = append(contacts, tBokiComponents.NewContact())
 	cPtr := &contacts[0]
 
 	distanceBetween := b.Pos.Sub(a.Pos)
 
-	radiusSum := b.Circle.Radius + a.Circle.Radius
+	radiusSum := circleB.Radius + circleA.Radius
 
 	// Use squared versions to avoid call to sqrt(Mag()).
 	isColliding = distanceBetween.MagSquared() <= (radiusSum * radiusSum)
@@ -56,15 +79,23 @@ func detectCircleCollision(a, b *tBokiComponents.RigidBody) (isColliding bool, c
 		return isColliding, contacts
 	}
 
-	cPtr.Normal = distanceBetween.Norm()
+	// If we are using this function for a broad phase check,
+	// we only need to populate the contact data if the two
+	// bodies are circles, since we can reuse the contact data.
+	// Otherwise we can return early, and let the ensuing narrow
+	// phase check populate the contact data.
+	if broadPhaseCheck && a.Circle != nil && b.Circle != nil {
+		cPtr.Normal = distanceBetween.Norm()
 
-	cPtr.Start = b.Pos.Sub(cPtr.Normal.Scale(b.Circle.Radius))
-	cPtr.End = a.Pos.Add(cPtr.Normal.Scale(a.Circle.Radius))
+		cPtr.Start = b.Pos.Sub(cPtr.Normal.Scale(circleB.Radius))
+		cPtr.End = a.Pos.Add(cPtr.Normal.Scale(circleA.Radius))
 
-	cPtr.Depth = cPtr.End.Sub(cPtr.Start).Mag()
+		cPtr.Depth = cPtr.End.Sub(cPtr.Start).Mag()
 
-	return isColliding, contacts
+		return isColliding, contacts
+	}
 
+	return true, contacts
 }
 
 func detectPolygonCollision(a, b *tBokiComponents.RigidBody) (isColliding bool, contacts []tBokiComponents.Contact) {

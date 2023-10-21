@@ -47,3 +47,7 @@ func DrawPolygonBody(screen *ebiten.Image, rb tBokiComponents.RigidBody, color c
 	vector.StrokeCircle(screen, float32(rb.Pos.X), float32(rb.Pos.Y), 4, 2.0, color, false)
 
 }
+
+func DrawBroadPhaseSkin(screen *ebiten.Image, rb tBokiComponents.RigidBody, color color.RGBA) {
+	vector.StrokeCircle(screen, float32(rb.Pos.X), float32(rb.Pos.Y), float32(rb.BroadPhaseSkin.Radius), 1.0, color, false)
+}
