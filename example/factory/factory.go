@@ -57,7 +57,7 @@ func CirclePhysicsObject(x, y, radius, rotation float64) tBokiComponents.RigidBo
 func BoxPhysicsObject(x, y, w, h, rotation float64) tBokiComponents.RigidBody {
 
 	body := tBokiComponents.NewRigidBodyBox(x, y, w, h, 10, true)
-	body.Elasticity = 0.3
+	body.Elasticity = 0.5
 	body.Friction = boxFriction
 	body.Rotation = rotation
 	body.UpdateVertices()

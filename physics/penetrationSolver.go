@@ -35,6 +35,7 @@ func preSolvePenConstraint(pc *tBokiComponents.PenConstraint, a, b *tBokiCompone
 	pc.Friction = (a.Friction + b.Friction) / 2.0
 
 	if pc.Friction > 0.0 {
+
 		tanNormal := normal.Perpendicular().Norm()
 
 		// Row 2 (resolves friction)

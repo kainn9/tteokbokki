@@ -5,9 +5,13 @@ import (
 	tBokiVec "github.com/kainn9/tteokbokki/math/vec"
 )
 
+type resolver struct{}
+
+var Resolver = resolver{}
+
 // Updates position and applies velocity to resolve collisions based on mass/angular-mass.
-// Note: a & b must be the same rigid bodies used to generate the constraint.
-func Impulse(c tBokiComponents.Contact, a, b *tBokiComponents.RigidBody) {
+// Note: a & b must be the same rigid bodies used to generate the contact.
+func (resolver) Resolve(a, b *tBokiComponents.RigidBody, c tBokiComponents.Contact) {
 
 	bothBodiesStatic :=
 		(a.IsStatic() || a.Unstoppable) && (b.IsStatic() || b.Unstoppable)
@@ -72,6 +76,13 @@ func getImpulses(c tBokiComponents.Contact, a, b *tBokiComponents.RigidBody) (tB
 
 	f := (a.Friction + b.Friction) / 2
 
+	// Reduce friction coefficient by factor of 10.
+	// This is a arbitrary value, that results in the
+	// the friction coefficient(f) being nicer to work with
+	// && also more similar to solver results given the same
+	// value.
+	f = f / 10
+
 	ra := c.End.Sub(a.Pos)
 	rb := c.Start.Sub(b.Pos)
 
@@ -119,7 +130,7 @@ func getImpulses(c tBokiComponents.Contact, a, b *tBokiComponents.RigidBody) (tB
 
 	denomT := abInverseMassSum + crossTanASq*a.InverseAngularMass + crossTanBSq*b.InverseAngularMass
 
-	impulseMagT := f * (-(1 + e) * velRelDotTan / denomT)
+	impulseMagT := f * -(1 + e) * velRelDotTan / denomT
 
 	impulseT := impulseDirectionT.Scale(impulseMagT)
 

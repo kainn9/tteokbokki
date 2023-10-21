@@ -11,15 +11,22 @@ type detector struct{}
 
 var Detector detector
 
-// Detect performs collision detection between two rigid bodies.
-// Returns true if the two rigid bodies are colliding, and a contact object.
-func (detector) Detect(a, b *tBokiComponents.RigidBody) (bool, []tBokiComponents.Contact) {
+// Detect performs a collision check between two rigid bodies.
+// It returns true if the two rigid bodies are colliding and a slice of contact objects
+// that can be used for collision resolution with a resolver or to create a penetration
+// constraint for solving the collision with a penetration solver.
+// If useResolver is true, the returned contacts should be used with a resolver
+// instead of a penetration solver.
+func (detector) Detect(a, b *tBokiComponents.RigidBody, useResolver bool) (bool, []tBokiComponents.Contact) {
 	if a.Circle != nil && b.Circle != nil {
 		return detectCircleCollision(a, b)
 	}
 
 	if a.Polygon != nil && b.Polygon != nil {
-		return detectPolygonCollision(a, b)
+		if useResolver {
+			return detectPolygonCollision(a, b)
+		}
+		return detectPolygonCollisions(a, b)
 	}
 
 	if a.Polygon != nil && b.Circle != nil {
@@ -61,6 +68,41 @@ func detectCircleCollision(a, b *tBokiComponents.RigidBody) (isColliding bool, c
 }
 
 func detectPolygonCollision(a, b *tBokiComponents.RigidBody) (isColliding bool, contacts []tBokiComponents.Contact) {
+
+	minSepA, incidentEdgeIndexA, penPointA := Util.FindMinSep(*a, *b)
+	incidentEdgeA, _, _ := Util.Edge(incidentEdgeIndexA, *a)
+
+	if minSepA >= 0 {
+		return false, contacts
+	}
+
+	minSepB, incidentEdgeIndexB, penPointB := Util.FindMinSep(*b, *a)
+	incidentEdgeB, _, _ := Util.Edge(incidentEdgeIndexB, *b)
+
+	if minSepB >= 0 {
+		return false, contacts
+	}
+
+	c := tBokiComponents.NewContact()
+
+	if minSepA > minSepB {
+		c.Depth = -minSepA
+		c.Normal = incidentEdgeA.Perpendicular().Norm()
+		c.Start = penPointA
+		c.End = c.Start.Add(c.Normal.Scale(c.Depth))
+
+	} else {
+
+		c.Depth = -minSepB
+		c.Normal = incidentEdgeB.Perpendicular().Norm().Scale(-1)
+		c.Start = penPointB.Sub(c.Normal.Scale(c.Depth))
+		c.End = penPointB
+	}
+
+	return true, append(contacts, c)
+}
+
+func detectPolygonCollisions(a, b *tBokiComponents.RigidBody) (isColliding bool, contacts []tBokiComponents.Contact) {
 	// Reference edge is the edge with the greatest penetration.
 	// The incident edge the edge from the penetrating body that has
 	// the normal most unaligned with the reference edge normal.
