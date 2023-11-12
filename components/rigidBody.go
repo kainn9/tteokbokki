@@ -97,24 +97,50 @@ func NewRigidBodyBox(x, y, w, h, mass float64, angular bool) *RigidBody {
 }
 
 // Returns a new RigidBody from an []vertices. Must be convex.
-func NewRigidBodyPolygon(x, y, mass float64, vertices []tBokiVec.Vec2, angular bool) *RigidBody {
-
+// Uses local space vertices to create a new RigidBody.
+func NewRigidBodyPolygonLocal(x, y, mass float64, vertices []tBokiVec.Vec2, angular bool) *RigidBody {
 	shape := NewPolyShape(vertices)
-	angularData := NewAngularData(0, 0, 0, 0, 0)
-
-	var longestDistanceFromCenter float64
-	for _, vert := range shape.LocalVertices {
-
-		distFromCenter := vert.Sub(tBokiVec.Vec2{X: 0, Y: 0}).Mag()
-
-		longestDistanceFromCenter = math.Max(longestDistanceFromCenter, distFromCenter)
-	}
+	longestDistanceFromCenter := calculateLongestDistance(shape.LocalVertices)
 
 	body := &RigidBody{
 		Pos:            tBokiVec.Vec2{X: x, Y: y},
 		Elasticity:     0.3,
 		Friction:       0.4,
-		AngularData:    angularData,
+		AngularData:    NewAngularData(0, 0, 0, 0, 0),
+		Polygon:        shape,
+		BroadPhaseSkin: NewCircleShape(longestDistanceFromCenter),
+	}
+
+	body.SetMass(mass)
+
+	if angular {
+		body.SetAngularMass(shape.GetMomentOfInertiaWithoutMass() * mass)
+	} else {
+		body.SetAngularMass(0)
+	}
+
+	body.UpdateVertices()
+
+	return body
+}
+
+// Uses world space vertices to create a new RigidBody.
+func NewRigidBodyPolygonWorld(mass float64, vertices []tBokiVec.Vec2, angular bool) *RigidBody {
+	center := findCenterFromVertices(vertices)
+	adjustedVertices := make([]tBokiVec.Vec2, len(vertices))
+
+	for i, vert := range vertices {
+		adjustedVertices[i] = vert.Sub(center)
+	}
+
+	shape := NewPolyShape(adjustedVertices)
+	longestDistanceFromCenter := calculateLongestDistance(shape.LocalVertices)
+
+	body := &RigidBody{
+		Pos:            tBokiVec.Vec2{X: center.X, Y: center.Y},
+		Elasticity:     0.3,
+		Friction:       0.4,
+		AngularData:    NewAngularData(0, 0, 0, 0, 0),
 		Polygon:        shape,
 		BroadPhaseSkin: NewCircleShape(longestDistanceFromCenter),
 	}
@@ -225,14 +251,43 @@ func (rb *RigidBody) UpdateVertices() error {
 	return nil
 }
 
-// returns a point from local space to world space, relative
+// Returns a point from local space to world space, relative
 // to a RigidBody's position and rotation.
 func (rb *RigidBody) LocalToWorldSpace(point tBokiVec.Vec2) tBokiVec.Vec2 {
 	return point.Rotate(rb.Rotation).Add(rb.Pos)
 }
 
-// returns a point from world space to local space, relative
+// Returns a point from world space to local space, relative
 // to a RigidBody's position and rotation.
 func (rb *RigidBody) WorldToLocalSpace(point tBokiVec.Vec2) tBokiVec.Vec2 {
 	return point.Sub(rb.Pos).Rotate(-rb.Rotation)
+}
+
+// Returns the center of a set of vertices.
+func findCenterFromVertices(points []tBokiVec.Vec2) tBokiVec.Vec2 {
+
+	if len(points) == 0 {
+		return tBokiVec.Vec2{X: 0, Y: 0}
+	}
+
+	sumX, sumY := 0.0, 0.0
+	for _, v := range points {
+		sumX += v.X
+		sumY += v.Y
+	}
+
+	centerX := sumX / float64(len(points))
+	centerY := sumY / float64(len(points))
+
+	return tBokiVec.Vec2{X: centerX, Y: centerY}
+}
+
+// Returns the longest distance from the center of a set of vertices.
+func calculateLongestDistance(vertices []tBokiVec.Vec2) float64 {
+	var longestDistance float64
+	for _, vert := range vertices {
+		distFromCenter := vert.Sub(tBokiVec.Vec2{X: 0, Y: 0}).Mag()
+		longestDistance = math.Max(longestDistance, distFromCenter)
+	}
+	return longestDistance
 }

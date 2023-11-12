@@ -34,7 +34,7 @@ func BoundsCircleComponent(x, y, radius float64) tBokiComponents.RigidBody {
 
 func HexagonPhysicsObject(x, y, rotation float64, vertices []tBokiVec.Vec2) tBokiComponents.RigidBody {
 
-	body := tBokiComponents.NewRigidBodyPolygon(x, y, 10, vertices, true)
+	body := tBokiComponents.NewRigidBodyPolygonLocal(x, y, 10, vertices, true)
 	body.Elasticity = 0.3
 	body.Friction = 0.5
 	body.Rotation = rotation
