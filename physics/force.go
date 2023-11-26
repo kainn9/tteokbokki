@@ -65,13 +65,12 @@ func (forceFactory) NewDragForce(velocity tBokiVec.Vec2, dragCoefficient float64
 
 // Creates a new friction force to apply friction.
 func (forceFactory) NewFrictionForce(velocity tBokiVec.Vec2, frictionCoefficient float64) tBokiVec.Vec2 {
-	frictionForce := tBokiVec.Vec2{}
 
 	// Calculate the friction force direction (opposite of velocity vector)
 	frictionDirection := velocity.Norm().Scale(-1)
 
 	// Multiply the normalized direction vector by the friction coefficient
-	frictionForce = frictionDirection.Scale(frictionCoefficient)
+	frictionForce := frictionDirection.Scale(frictionCoefficient)
 
 	return frictionForce
 }
