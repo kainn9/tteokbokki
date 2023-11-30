@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
 	"github.com/kainn9/coldBrew"
 	"github.com/kainn9/tteokbokki/example/constants"
 	"github.com/kainn9/tteokbokki/example/scenes"
@@ -51,6 +52,7 @@ func (g *game) Update() error {
 }
 
 func (g *game) Draw(screen *ebiten.Image) {
+	ebitenutil.DebugPrint(screen, "Hello! This is a very basic demo of tteokbokki that does not include all functionality. You can click to spawn random rigid bodies, Enjoy!")
 	g.manager.GetActiveScene().Draw(screen)
 }
 

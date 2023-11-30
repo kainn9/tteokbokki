@@ -18,6 +18,7 @@ func NewClickTracker(clicks *[]tBokiVec.Vec2) ClickTracker {
 }
 
 func (sys ClickTracker) Sync(_ *donburi.Entry) {
+
 	if inpututil.IsMouseButtonJustReleased(ebiten.MouseButtonLeft) {
 		x, y := ebiten.CursorPosition()
 
@@ -28,4 +29,25 @@ func (sys ClickTracker) Sync(_ *donburi.Entry) {
 
 		*sys.Clicks = append(*sys.Clicks, click)
 	}
+
+	sys.handleMobile()
+
+}
+
+func (sys *ClickTracker) handleMobile() {
+
+	tIds := []ebiten.TouchID{}
+	tIds = inpututil.AppendJustPressedTouchIDs(tIds)
+
+	if len(tIds) > 0 {
+		x, y := ebiten.TouchPosition(tIds[0])
+		click := tBokiVec.Vec2{
+			X: float64(x),
+			Y: float64(y),
+		}
+
+		*sys.Clicks = append(*sys.Clicks, click)
+
+	}
+
 }
