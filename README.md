@@ -14,6 +14,8 @@ A basic 2D physics library for Go, inspired by the [Pikuma C++ course](https://p
     - Ability to toggle between solver and resolver []
     - Ability to turn off collision resolution + Gravity and draw contacts []
 
+- ctype errors/guard on resolver/Solver[]
+- Simple Vert solver![]
 - A simple example(one file)
 - Proper ReadMe(docs + design explanations) []
 - Consider contact/manifold caching []

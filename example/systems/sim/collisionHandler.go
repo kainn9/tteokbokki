@@ -60,9 +60,9 @@ func (sys CollisionHandler) Run(dt float64, _ *donburi.Entry) {
 			a := bodies[i]
 			b := bodies[j]
 
-			if isColliding, contacts := tBokiPhysics.Detector.Detect(a, b, false); isColliding {
+			if isColliding, contacts := tBokiPhysics.Detector.Detect(a, b, tBokiComponents.SolverType); isColliding {
 
-				for _, contact := range contacts {
+				for _, contact := range contacts.Data {
 					penConstraints = append(penConstraints, tBokiComponents.NewPenConstraint(contact, a, b))
 					aBodies = append(aBodies, a)
 					bBodies = append(bBodies, b)

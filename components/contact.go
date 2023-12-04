@@ -8,6 +8,27 @@ type Contact struct {
 	Depth              float64
 }
 
+type ContactsType int
+
+const (
+	ResolverType ContactsType = iota
+	SolverType
+	FixedVerticalType
+)
+
+type Contacts struct {
+	Type ContactsType
+	Data []Contact
+}
+
 func NewContact() Contact {
 	return Contact{}
+}
+
+func NewContacts(cType ContactsType) Contacts {
+	return Contacts{
+		Type: cType,
+		Data: make([]Contact, 0),
+	}
+
 }

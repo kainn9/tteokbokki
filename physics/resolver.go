@@ -11,7 +11,8 @@ var Resolver = resolver{}
 
 // Updates position and applies velocity to resolve collisions based on mass/angular-mass.
 // Note: a & b must be the same rigid bodies used to generate the contact.
-func (resolver) Resolve(a, b *tBokiComponents.RigidBody, c tBokiComponents.Contact) {
+func (resolver) Resolve(a, b *tBokiComponents.RigidBody, contacts tBokiComponents.Contacts) {
+	c := contacts.Data[0]
 
 	bothBodiesStatic :=
 		(a.IsStatic() || a.Unstoppable) && (b.IsStatic() || b.Unstoppable)

@@ -17,10 +17,11 @@ var Detector detector
 // constraint for solving the collision with a penetration solver.
 // If useResolver is true, the returned contacts should be used with a resolver
 // instead of a penetration solver.
-func (detector) Detect(a, b *tBokiComponents.RigidBody, useResolver bool) (bool, []tBokiComponents.Contact) {
+func (detector) Detect(a, b *tBokiComponents.RigidBody, cType tBokiComponents.ContactsType) (bool, tBokiComponents.Contacts) {
 
 	// First Check using the broad phase skin(circles).
 	broadPhaseCheck, contacts := detectCircleCollision(a, b, true)
+	contacts.Type = cType
 
 	// If the broad phase check fails, we can return early
 	// its not possible for the two bodies to be colliding.
@@ -38,10 +39,16 @@ func (detector) Detect(a, b *tBokiComponents.RigidBody, useResolver bool) (bool,
 	// Otherwise, we need to perform a narrow phase check
 	// for other shapes/bodies.
 	if a.Polygon != nil && b.Polygon != nil {
-		if useResolver {
-			return detectPolygonCollision(a, b)
+
+		if cType == tBokiComponents.ResolverType {
+			isColliding, contacts := detectPolygonCollision(a, b)
+			contacts.Type = cType
+			return isColliding, contacts
 		}
-		return detectPolygonCollisions(a, b)
+
+		isColliding, contacts := detectPolygonCollisions(a, b)
+		contacts.Type = cType
+		return isColliding, contacts
 	}
 
 	if a.Polygon != nil && b.Circle != nil {
@@ -52,10 +59,10 @@ func (detector) Detect(a, b *tBokiComponents.RigidBody, useResolver bool) (bool,
 		return detectPolygonCircleCollision(b, a, true)
 	}
 
-	return false, make([]tBokiComponents.Contact, 0)
+	return false, tBokiComponents.NewContacts(cType)
 }
 
-func detectCircleCollision(a, b *tBokiComponents.RigidBody, broadPhaseCheck bool) (isColliding bool, contacts []tBokiComponents.Contact) {
+func detectCircleCollision(a, b *tBokiComponents.RigidBody, broadPhaseCheck bool) (isColliding bool, contacts tBokiComponents.Contacts) {
 
 	circleA := a.Circle
 	circleB := b.Circle
@@ -65,8 +72,8 @@ func detectCircleCollision(a, b *tBokiComponents.RigidBody, broadPhaseCheck bool
 		circleB = b.BroadPhaseSkin
 	}
 
-	contacts = append(contacts, tBokiComponents.NewContact())
-	cPtr := &contacts[0]
+	contacts.Data = append(contacts.Data, tBokiComponents.NewContact())
+	cPtr := &contacts.Data[0]
 
 	distanceBetween := b.Pos.Sub(a.Pos)
 
@@ -81,9 +88,9 @@ func detectCircleCollision(a, b *tBokiComponents.RigidBody, broadPhaseCheck bool
 
 	// If we are using this function for a broad phase check,
 	// we only need to populate the contact data if the two
-	// bodies are circles, since we can reuse the contact data.
+	// underlying bodies are circles, since we can reuse the contact data.
 	// Otherwise we can return early, and let the ensuing narrow
-	// phase check populate the contact data.
+	// phase check populate the contact data for other shapes.
 	if broadPhaseCheck && a.Circle != nil && b.Circle != nil {
 		cPtr.Normal = distanceBetween.Norm()
 
@@ -95,10 +102,10 @@ func detectCircleCollision(a, b *tBokiComponents.RigidBody, broadPhaseCheck bool
 		return isColliding, contacts
 	}
 
-	return true, contacts
+	return isColliding, contacts
 }
 
-func detectPolygonCollision(a, b *tBokiComponents.RigidBody) (isColliding bool, contacts []tBokiComponents.Contact) {
+func detectPolygonCollision(a, b *tBokiComponents.RigidBody) (isColliding bool, contacts tBokiComponents.Contacts) {
 
 	minSepA, incidentEdgeIndexA, penPointA := Util.FindMinSep(*a, *b)
 	incidentEdgeA, _, _ := Util.Edge(incidentEdgeIndexA, *a)
@@ -130,10 +137,12 @@ func detectPolygonCollision(a, b *tBokiComponents.RigidBody) (isColliding bool, 
 		c.End = penPointB
 	}
 
-	return true, append(contacts, c)
+	contacts.Data = append(contacts.Data, c)
+
+	return true, contacts
 }
 
-func detectPolygonCollisions(a, b *tBokiComponents.RigidBody) (isColliding bool, contacts []tBokiComponents.Contact) {
+func detectPolygonCollisions(a, b *tBokiComponents.RigidBody) (isColliding bool, contacts tBokiComponents.Contacts) {
 	// Reference edge is the edge with the greatest penetration.
 	// The incident edge the edge from the penetrating body that has
 	// the normal most unaligned with the reference edge normal.
@@ -245,13 +254,13 @@ func detectPolygonCollisions(a, b *tBokiComponents.RigidBody) (isColliding bool,
 
 		}
 
-		contacts = append(contacts, c)
+		contacts.Data = append(contacts.Data, c)
 	}
 
 	return true, contacts
 }
 
-func detectPolygonCircleCollision(polygonBody, circleBody *tBokiComponents.RigidBody, abSwapped bool) (isColliding bool, contacts []tBokiComponents.Contact) {
+func detectPolygonCircleCollision(polygonBody, circleBody *tBokiComponents.RigidBody, abSwapped bool) (isColliding bool, contacts tBokiComponents.Contacts) {
 	// If abSwapped is true, we need to swap the normal and
 	// start/end. This is because the normal is always calculated
 	// from the polygon to the circle(vertToCircleCenter).
@@ -260,14 +269,14 @@ func detectPolygonCircleCollision(polygonBody, circleBody *tBokiComponents.Rigid
 			return
 		}
 
-		for i := range contacts {
-			contacts[i].Normal = contacts[i].Normal.Scale(-1)
-			contacts[i].Start, contacts[i].End = contacts[i].End, contacts[i].Start
+		for i := range contacts.Data {
+			contacts.Data[i].Normal = contacts.Data[i].Normal.Scale(-1)
+			contacts.Data[i].Start, contacts.Data[i].End = contacts.Data[i].End, contacts.Data[i].Start
 		}
 	}()
 
-	contacts = append(contacts, tBokiComponents.NewContact())
-	cPtr := &contacts[0]
+	contacts.Data = append(contacts.Data, tBokiComponents.NewContact())
+	cPtr := &contacts.Data[0]
 
 	// getting the nearest edge/vertices to the circle center
 	circleCenterOutside := false
