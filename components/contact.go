@@ -13,7 +13,6 @@ type ContactsType int
 const (
 	ResolverType ContactsType = iota
 	SolverType
-	FixedVerticalType
 )
 
 type Contacts struct {

@@ -84,3 +84,7 @@ func (v2 Vec2) RotateAroundPoint(radians float64, point Vec2) Vec2 {
 	return v2
 
 }
+
+func (v2 Vec2) Compare(v2b Vec2) bool {
+	return v2.X == v2b.X && v2.Y == v2b.Y
+}
