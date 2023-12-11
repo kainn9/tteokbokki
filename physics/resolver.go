@@ -140,7 +140,7 @@ func getImpulses(c tBokiComponents.Contact, a, b *tBokiComponents.RigidBody) (tB
 
 // Converted to Golang from:
 // https://paulbourke.net/geometry/pointlineplane/javascript.txt
-func (resolver) LineIntersection(v1, v2, v3, v4 tBokiVec.Vec2) (bool, map[string]float64) {
+func (resolver) LineIntersection(v1, v2, v3, v4 tBokiVec.Vec2) (bool, tBokiVec.Vec2) {
 
 	x1 := v1.X
 	y1 := v1.Y
@@ -153,14 +153,14 @@ func (resolver) LineIntersection(v1, v2, v3, v4 tBokiVec.Vec2) (bool, map[string
 
 	// Check if none of the lines are of length 0
 	if (x1 == x2 && y1 == y2) || (x3 == x4 && y3 == y4) {
-		return false, nil
+		return false, tBokiVec.Vec2{}
 	}
 
 	denominator := (y4-y3)*(x2-x1) - (x4-x3)*(y2-y1)
 
 	// Lines are parallel
 	if denominator == 0 {
-		return false, nil
+		return false, tBokiVec.Vec2{}
 	}
 
 	ua := ((x4-x3)*(y1-y3) - (y4-y3)*(x1-x3)) / denominator
@@ -168,11 +168,14 @@ func (resolver) LineIntersection(v1, v2, v3, v4 tBokiVec.Vec2) (bool, map[string
 
 	// Is the intersection along the segments
 	if ua < 0 || ua > 1 || ub < 0 || ub > 1 {
-		return false, nil
+		return false, tBokiVec.Vec2{}
 	}
 
-	// Return a map with the x and y coordinates of the intersection
-	intersection := map[string]float64{"x": x1 + ua*(x2-x1), "y": y1 + ua*(y2-y1)}
+	// Return a vec with the x and y coordinates of the intersection
+	intersection := tBokiVec.Vec2{
+		X: x1 + ua*(x2-x1),
+		Y: y1 + ua*(y2-y1),
+	}
 
 	return true, intersection
 }
