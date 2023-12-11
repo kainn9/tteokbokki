@@ -67,21 +67,13 @@ func NewRigidBodyBox(x, y, w, h, mass float64, angular bool) *RigidBody {
 	shape := NewBoxShape(w, h)
 	angularData := NewAngularData(0, 0, 0, 0, 0)
 
-	var longestDistanceFromCenter float64
-	for _, vert := range shape.LocalVertices {
-
-		distFromCenter := vert.Sub(tBokiVec.Vec2{X: 0, Y: 0}).Mag()
-
-		longestDistanceFromCenter = math.Max(longestDistanceFromCenter, distFromCenter)
-	}
-
 	body := &RigidBody{
 		Pos:            tBokiVec.Vec2{X: x, Y: y},
 		Elasticity:     0.5,
 		Friction:       0.030,
 		AngularData:    angularData,
 		Polygon:        shape,
-		BroadPhaseSkin: NewCircleShape(longestDistanceFromCenter),
+		BroadPhaseSkin: shape.NewBroadPhaseSkin(),
 	}
 	body.SetMass(mass)
 

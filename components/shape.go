@@ -1,6 +1,10 @@
 package tBokiComponents
 
-import tBokiVec "github.com/kainn9/tteokbokki/math/vec"
+import (
+	"math"
+
+	tBokiVec "github.com/kainn9/tteokbokki/math/vec"
+)
 
 // Various shapes that can be assumed by a rigid body.
 
@@ -100,4 +104,16 @@ func NewPolyShape(vertices []tBokiVec.Vec2) *Polygon {
 		LocalVertices: localVertices,
 		WorldVertices: worldVertices,
 	}
+}
+
+func (shape *Polygon) NewBroadPhaseSkin() *Circle {
+	var longestDistanceFromCenter float64
+	for _, vert := range shape.LocalVertices {
+
+		distFromCenter := vert.Sub(tBokiVec.Vec2{X: 0, Y: 0}).Mag()
+
+		longestDistanceFromCenter = math.Max(longestDistanceFromCenter, distFromCenter)
+	}
+
+	return NewCircleShape(longestDistanceFromCenter)
 }
