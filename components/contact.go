@@ -6,6 +6,12 @@ import tBokiVec "github.com/kainn9/tteokbokki/math/vec"
 type Contact struct {
 	Start, End, Normal tBokiVec.Vec2
 	Depth              float64
+
+	// Only for polygon on polygon ResolverType (otherwise nil).
+	// The Edge of deepest penetration.
+	// Key is pointer to penetrated rigid body.
+	// Vec is indexes of edge vertices.
+	IncidentEdge map[*RigidBody][]int
 }
 
 type ContactsType int

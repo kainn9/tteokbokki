@@ -135,6 +135,12 @@ func detectPolygonCollision(a, b *tBokiComponents.RigidBody) (isColliding bool, 
 		c.Normal = incidentEdgeB.Perpendicular().Norm().Scale(-1)
 		c.Start = penPointB.Sub(c.Normal.Scale(c.Depth))
 		c.End = penPointB
+
+	}
+
+	c.IncidentEdge = map[*tBokiComponents.RigidBody][]int{
+		a: {incidentEdgeIndexA, (incidentEdgeIndexA + 1) % len(a.Polygon.WorldVertices)},
+		b: {incidentEdgeIndexB, (incidentEdgeIndexB + 1) % len(b.Polygon.WorldVertices)},
 	}
 
 	contacts.Data = append(contacts.Data, c)
@@ -251,7 +257,6 @@ func detectPolygonCollisions(a, b *tBokiComponents.RigidBody) (isColliding bool,
 		if minSepB >= minSepA {
 			c.Normal = c.Normal.Scale(-1)
 			c.Start, c.End = c.End, c.Start
-
 		}
 
 		contacts.Data = append(contacts.Data, c)
