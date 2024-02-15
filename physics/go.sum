@@ -1,0 +1,4 @@
+github.com/kainn9/tteokbokki/transform v0.0.0-20240224205830-14d6e256a346 h1:uQBCz2MnujJZePqxs6bf/PpT9GPk2YpEL1QjP6o28Kc=
+github.com/kainn9/tteokbokki/transform v0.0.0-20240224205830-14d6e256a346/go.mod h1:98I4A4hj1ROk5tbSNDX9dFQg7iFIbN88RWgMkNTkci0=
+github.com/kainn9/tteokbokki/vector v0.0.0-20240224205830-14d6e256a346 h1:6GiHr7PivGXbZDqxKyxG1RrH69PbPKABghP7PunZHwY=
+github.com/kainn9/tteokbokki/vector v0.0.0-20240224205830-14d6e256a346/go.mod h1:1uM7EKCSuv2yhCbkTiUepYf9ariuLtvNrsSNhhQmX6U=

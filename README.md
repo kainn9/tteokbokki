@@ -1,4 +1,6 @@
-﻿# tteokbokki(WIP)
+## WIP(BEING REFACTORED!)
+
+## OLD README:
 A basic 2D physics library for Go, inspired by the [Pikuma C++ course](https://pikuma.com/courses/game-physics-engine-programming), and written in an ECS-based fashion.
 
 ### Very Basic Interactive [Example](https://www.kainan.io/tteokbokki.html)
